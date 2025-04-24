@@ -1,0 +1,13 @@
+x : vec 2 <cipher cipher >;
+y : vec 2 <plain plain>;
+z : vec 2 <cipher cipher>;
+r : vec 2 <cipher cipher>;
+s : cipher;
+t : cipher
+
+s := cinit(100);
+t := s @ s;
+x := vinit(3 10);
+y := vinit(10 20);
+z := y @ x;
+r := z & z

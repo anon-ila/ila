@@ -1,0 +1,13 @@
+c1 : cipher;
+c2 : cipher;
+c3 : cipher;
+x : int
+
+c1 := cinit(10);
+c2 := cinit(20);
+x := 2;
+if x > 0 then
+c3 := c1 @ c2
+else
+c3 := c2 @ c2
+end

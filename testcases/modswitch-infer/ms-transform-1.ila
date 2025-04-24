@@ -1,0 +1,33 @@
+# Source code for params:
+# ======================
+# poly_modulus_degree = 8192*4
+# self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [30, 30, 40, 50, 60, 60]))
+# self.parms.set_plain_modulus(PlainModulus.Batching(poly_modulus_degree, 20))
+#
+# Params
+# =======
+# Coefficient Modulus (q): 1643192699048272270166163683403217864728768164175634618587021313
+# Plaintext Modulus   (t): 786433
+# Poly  Modulus       (d): 32768
+#
+# Expected output:
+
+
+
+c1 : cipher <5, -5, 571330318775>;
+c2 : cipher <25, -25, 326418333151543102013440>;
+c3 : cipher <125, -125, 186492690333475269899310739390201856>;
+c4 : cipher <3125, -3125, 60874633123599892742218573857630977200637287313838421573632>;
+c5 : cipher <390625, -390625, 231583416730700375522542478103624884787735340209882005504>
+
+
+
+
+
+c1 := cinit(2);
+c2 := (c1 & c1);
+c3 := (c2 & c1);
+c4 := (c3 & c2);
+c5 := (c4 & c3)
+
+

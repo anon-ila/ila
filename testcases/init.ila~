@@ -1,0 +1,22 @@
+p1 : plain <1, 2> ;
+p2 : plain <2, 3> ;
+p3 : plain <4, 6> ;
+c1 : cipher <1, 2, 2>;
+c2 : cipher <2, 8, 1>;
+c3 : cipher <4, 6, 3>;
+q : int
+
+
+c1 := init(5);
+c2 := init(36);
+c3 := init(0);
+p1 := 5;
+p2 := 10;
+q  := 5;
+
+if q >= 0 then
+  c3 := c1 & c2
+else
+  p3 := p1 @ p2
+  c3 := c1 @ p3;
+end

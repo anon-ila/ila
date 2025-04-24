@@ -1,0 +1,38 @@
+Plaintext matrix row size: 4096.0
+Plaintext modulus: 1032193
+==================================
+
+Coefficient Modulus (q): 23945240908173643396739775218143152511335532357255169
+
+Plaintext Modulus   (t): 1032193
+
+Poly  Modulus       (d): 8192
+
+==================================
+
+Variable types:
+c1: cipher <5.0, -5.0, 4722366482869645213696, 3>
+c2: cipher <25.0, -25.0, 22300745198530623141535718272648361505980416, 3>
+c3: cipher <125.0, -125.0, 105312291668557186697918027683670432318895095400549111254310977536, 3>
+c4: cipher <625.0, -625.0, 1233377421932935665181088652510701701548750922152148992, 3>
+c5: cipher <3125.0, -3125.0, 62574602220858048936249590026386645165536973908244546818962096128, 3>
+
+Type checking ...
+==================================
+Typecheck error: noise out of bounds for the expression: (c2 & c1)
+Returned error code: 3
+==================================
+Type checker time in ms: 0.03975000000000506
+
+
+Evaluating ILA Program ...
+Final variable values:
+c1: 2 (remaining noise budget: 145)
+c2: 4 (remaining noise budget: 108)
+c3: 8 (remaining noise budget: 70)
+c4: 16 (remaining noise budget: 32)
+c5: -185959 (remaining noise budget: 0)
+Eval  time in ms: 53.487375999999976
+
+MS inference failed
+.

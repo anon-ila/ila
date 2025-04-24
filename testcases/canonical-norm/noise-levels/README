@@ -1,0 +1,12 @@
+Compare multiplicative depth between ILA and SEAL using canonical norm.
+
+
+Program           | q       |  d  |  t |  ILA mul  depth      | SEAL Mul depth | 
+======================================================================================
+multi-depth-1     |
+multi-depth-2     |
+multi-depth-3	  |
+multi-depth-4	  |
+multi-depth-5	  |
+multi-depth-6	  |
+multi-depth-7	  |

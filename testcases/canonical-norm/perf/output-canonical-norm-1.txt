@@ -1,0 +1,50 @@
+Public Params
+=============
+
+poly_modulus_degree = 8192 * 4
+self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [60, 60, 60, 60, 60, 60, 60, 60\
+, 60, 60, 60, 60, 60, 60]))
+self.parms.set_plain_modulus(PlainModulus.Batching(poly_modulus_degree, 20))
+
+
+Plaintext matrix row size: 16384.0
+Plaintext modulus: 786433
+==================================
+
+Coefficient Modulus (q): 6359114104883130482763779664476944405868916717096342047953616435291092634564145660463753143620861792161781026406155751724415156060914890623839158265292892759308446177118920698074988020284857570241486388652332816752914018149094223904769
+
+Plaintext Modulus   (t): 786433
+
+Poly  Modulus       (d): 32768
+
+==================================
+
+
+
+Functional Correctness: Enabled
+================================
+
+perf1.ila
+Type checker time in ms: 0.027124999999905697
+Eval time in ms: 463.4409150000001
+perf2.ila
+Type checker time in ms: 0.07699999999988272
+Eval time in ms: 462.8232480000001
+perf3.ila
+Type checker time in ms: 0.12774999999987102
+Eval time in ms: 675.2953729999999
+perf4.ila
+Type checker time in ms: 0.1478749999999085
+Eval time in ms: 2466.5177810000005
+perf5.ila
+Type checker time in ms: 0.2014999999999656
+Eval time in ms: 2551.439198
+perf6.ila
+Type checker time in ms: 0.3029999999999422
+Eval time in ms: 2512.294823
+perf7.ila
+Type checker time in ms: 0.29054200000011576
+Eval time in ms: 2487.4426169999997
+perf8.ila
+Type checker time in ms: 0.28654200000000074
+Eval time in ms: 2493.621783

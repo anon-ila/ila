@@ -1,0 +1,9 @@
+x : cipher;
+y : cipher;
+z : cipher;
+r : cipher
+
+x := cinit(10);
+y := cinit(20);
+z := x & y;
+r := y

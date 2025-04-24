@@ -1,0 +1,3 @@
+c : cipher
+
+c := cinit(10)

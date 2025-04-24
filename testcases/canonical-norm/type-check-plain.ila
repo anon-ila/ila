@@ -1,0 +1,7 @@
+p1 : plain <5, 5>;
+p2 : plain <10, 10>;
+p3 : plain <100, 100>
+
+p1 := pinit(5);
+p2 := pinit(10);
+p3 := (p1 & p2)

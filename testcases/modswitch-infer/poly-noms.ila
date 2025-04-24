@@ -1,0 +1,41 @@
+# Source code for params:
+# ======================
+# poly_modulus_degree = 8192*4
+# self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [30, 30, 40, 50, 60, 60]))
+# self.parms.set_plain_modulus(PlainModulus.Batching(poly_modulus_degree, 20))
+#
+# Params
+# =======
+# Coefficient Modulus (q): 1643192699048272270166163683403217864728768164175634618587021313
+# Plaintext Modulus   (t): 786433
+# Poly  Modulus       (d): 32768
+#
+# Expected output:
+# =======================================
+# Transformed program after MS inference :
+# =======================================
+# c1 := cipher <seal.Ciphertext object at 0xffff8e4519f0>; 
+# c2 := ms((c1 & c1)); 
+# c3 := (c2 & c2); 
+# c4 := (c3 & c3)
+# ==================================
+# Eval program after MS inference :
+# ==================================
+# c1: 58 (remaining noise budget: 181)
+# c2: 3364 (remaining noise budget: 144)
+# c3: 306434 (remaining noise budget: 65)
+# c4: 318056 (remaining noise budget: 0)
+
+
+c1 : cipher <2, -2, 571330318775>;
+c2 : cipher <4, -4, 36445169595, 3>;
+c3 : cipher <16, -16, 1328250386808312430592, 3 >;
+c4 : cipher <256, -256, 1764249090056431511032675365294462577147905, 3>
+
+
+
+
+c1 := cpolyinit(x3_2x2_3x1_4);
+c2 := (c1 & c1);
+c3 := (c2 & c2);
+c4 := (c3 & c3)

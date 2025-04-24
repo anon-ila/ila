@@ -1,0 +1,4 @@
+Compare multiplicative depth between ILA and SEAL using canonical norm.
+
+ILA multiplicative depth 5.
+SEAL multiplicative depth 4 or 5.

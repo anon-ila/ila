@@ -1,0 +1,4 @@
+
+The file plain-decode-fail.cpp is a bare SEAL program that  gives an incorrect result due to wrap-around.
+ILA type checker fails for this program.
+

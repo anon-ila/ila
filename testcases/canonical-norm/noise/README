@@ -1,0 +1,12 @@
+Compare multiplicative depth between ILA and SEAL using canonical norm.
+
+
+Program           | ILA multiplicative depth      | SEAL multiplicative depth | Reason
+======================================================================================
+multi-depth-1     |	4	       	     	  | 4 or 5		      |
+multi-depth-2     |     3			  | 3 	 		      |
+multi-depth-3	  |	6			  | 6			      |
+multi-depth-4	  |	8			  | 18			      | value out of bounds
+multi-depth-5	  |	11			  | 18			      | value out of bounds (functional correctness enabled)
+multi-depth-6	  |	18			  | 21			      | functional correctness disabled enabled)
+multi-depth-7	  |	21			  | 21			      | functional correctness disabled for ILA,  accurate upto mod t.

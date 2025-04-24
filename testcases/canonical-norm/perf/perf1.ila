@@ -1,0 +1,52 @@
+# poly_modulus_degree = 8192
+# self.parms.set_coeff_modulus(CoeffModulus.BFVDefault(poly_modulus_degree))
+# self.parms.set_plain_modulus(PlainModulus.Batching(poly_modulus_degree, 20))
+# Plaintext modulus: 1032193
+#==================================
+#
+#Coefficient Modulus (q): 23945240908173643396739775218143152511335532357255169
+#
+#Plaintext Modulus   (t): 1032193
+#
+#Poly  Modulus       (d): 8192
+#
+#==================================
+#
+# Variable types:
+# c1: cipher <5.0, -5.0, 187474192400, 3>
+# c2: cipher <25.0, -25.0, 35146572816032219529216, 3>
+# c3: cipher <125.0, -125.0, 6589075354313433988833218926739456, 3>
+# c4: cipher <625.0, -625.0, 1235281580712654834447452121803043029223735296, 3>
+# c5: cipher <3125.0, -3125.0, 231583416730700375522542478103624884787735340209882005504, 3>
+# 
+# Type checking ...
+# ==================================
+# Typecheck error: noise out of bounds for the expression: (c4 & c1)
+# Returned error code: 3
+# ==================================
+# 
+# Evaluating ILA Program ...
+# Final variable values:
+# c1: 2 (remaining noise budget: 145)
+# c2: 4 (remaining noise budget: 109)
+# c3: 8 (remaining noise budget: 72)
+# c4: 16 (remaining noise budget: 35)
+# c5: -512068 (remaining noise budget: 0)
+# 
+
+
+c1 : cipher <5, -5, 187474192400>;
+c2 : cipher <25, -25, 35146572816032219529216>;
+c3 : cipher <125, -125, 6589075354313433988833218926739456>;
+c4 : cipher <625, -625, 1235281580712654834447452121803043029223735296>;
+c5 : cipher <3125, -3125, 231583416730700375522542478103624884787735340209882005504>
+
+
+
+
+c1 := cinit(2);
+c2 := (c1 & c1);
+c3 := (c2 & c1);
+c4 := (c3 & c1);
+c5 := (c4 & c1)
+

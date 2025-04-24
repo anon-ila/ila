@@ -1,0 +1,58 @@
+# Source code for params:
+# ======================
+# poly_modulus_degree = 8192*4
+# self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [25, 25, 40, 50, 55, 60, 60]))
+# self.parms.set_plain_modulus(PlainModulus.Batching(poly_modulus_degree, 20))
+#
+# Params
+# =======
+# Coefficient Modulus (q): 56321706607783151545961282860103056230900177918625571845063099911577811681281
+# Plaintext Modulus   (t): 786433
+# Poly  Modulus       (d): 32768
+#
+# Expected output:
+#Type checking ...
+#==================================
+#Typecheck error: noise out of bounds for the expression: (c3 & c3)
+#Returned error code: 3
+#==================================
+#
+#Evaluating ILA Program ...
+#Final variable values:
+#c1: 58 (remaining noise budget: 225)
+#c2: 3364 (remaining noise budget: 186)
+#c3: 306434 (remaining noise budget: 104)
+#c4: -30569 (remaining noise budget: 0)
+#c5: 337425 (remaining noise budget: 0)
+#
+#========================================
+#Transformed program after MS inference :
+#=========================================
+# c1 := cipher <seal.Ciphertext object at 0xffff75a1e970>; 
+# c2 := ms((c1 & c1)); 
+# c3 := ms((c2 & c2)); 
+# c4 := ms((c3 & c3)); 
+# c5 := (c4 & c4)
+#
+#==================================
+#Eval program after MS inference :
+#==================================
+#c1: 58 (remaining noise budget: 225)
+#c2: 3364 (remaining noise budget: 165)
+#c3: 306434 (remaining noise budget: 110)
+#c4: 123290 (remaining noise budget: 60)
+#c5: 247076 (remaining noise budget: 21)
+
+c1 : cipher <5, -5, 571330318775>;
+c2 : cipher <25, -25, 326418333151543102013440>;
+c3 : cipher <625, -625, 106548928217431777798623108312086548099985571840>;
+c4 : cipher <390625, -390625, 1235281580712654834447452121803043029223735296>;
+c5 : cipher <65536, -65536, 1328315739705371262976, 2>
+
+
+
+c1 := cpolyinit(x3_2x2_3x1_4);
+c2 := (c1 & c1);
+c3 := (c2 & c2);
+c4 := (c3 & c3);
+c5 := (c4 & c4)

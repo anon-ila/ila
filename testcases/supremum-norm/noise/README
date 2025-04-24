@@ -1,0 +1,4 @@
+Compare multiplicative depth between ILA and SEAL using supremum norm:
+
+ILA multiplicative depth 3.
+SEAL multiplicative depth 4 or 5.

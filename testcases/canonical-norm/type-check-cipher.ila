@@ -1,0 +1,12 @@
+c1 : cipher <5,5,0>;
+c2 : cipher <0,0,0>;
+c3 : cipher <0,0,0>;
+c4 : cipher <0,0,0>;
+c5 : cipher <0,0,0>
+
+c1 := cinit(1);
+c2 := cinit(2);
+c3 := cinit(3);
+c4 := cinit(4);
+c5 := (c1@c2)&(c3@c4)
+

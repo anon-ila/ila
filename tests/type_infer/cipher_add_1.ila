@@ -1,0 +1,7 @@
+x : cipher <0, 0>;
+y : cipher <0, 0>;
+z : cipher <0, 0>
+
+x := cinit(10);
+y := cinit(11);
+z := x @ y

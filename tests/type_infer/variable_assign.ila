@@ -1,0 +1,4 @@
+x : plain;
+y : plain
+
+x := y

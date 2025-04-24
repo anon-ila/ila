@@ -1,0 +1,5 @@
+x : plain;
+y : plain <-2, 3>
+
+x := pinit(1);
+y := x

@@ -1,0 +1,14 @@
+n : int;
+p : int;
+q : int
+
+
+n := 5;
+p := 1;
+q := 0;
+if q >= 0 then
+  p := p + n
+else
+  n := n - 1;
+  p := n + p
+end

@@ -1,0 +1,9 @@
+c1 : cipher;
+p1 : plain;
+c2 : cipher
+
+
+c1 := cinit(55);
+p1 := pinit(5);
+c2 := (p1 & c1)
+
