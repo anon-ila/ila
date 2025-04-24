@@ -1,0 +1,47 @@
+client_data : vec cipher 20;
+server_data : vec cipher 20;
+random_plain_data : vec plain 20;
+result : cipher;
+n_unit : plain;
+i : int;
+t1 : plain;
+t2: cipher;
+t3: cipher;
+t4 : cipher;
+t5 : cipher;
+t6 : cipher
+
+
+
+client_data := vinit[6 -2 -7];
+server_data := vinit[6 9 1];
+random_plain_data := vinit[4 11 15];
+result := pinit(1);
+n_unit := pinit(-1);
+j :=2;
+
+while j
+do
+ t2 := index(client_data,j);
+ i :=2;
+while i
+do
+  #select i^th element from plain_data, client_data, server_data
+  t1 := index(random_plain_data, i);
+  t3 := index(server_data,i);
+
+  #  -1 * server_data[i]
+  t4 := (n_unit & t3);
+
+  # client_data[i] - server_data[i]
+  t5 := t2 @ t4;
+
+  # random_plain_data[i] * (client_data[i] - server_data[i])
+  t6 := t1 & t5;
+  result := result & t6
+
+ end
+
+ end
+
+

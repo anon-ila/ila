@@ -1,10 +1,10 @@
 from seal import *
 import numpy as np
 from ila_backend import *
+import math
 
 class Seal(Backend):
-    def __init__(self, norm_ty, scheme_ty):
-        self.norm_ty = norm_ty
+    def __init__(self, scheme_ty):
         if scheme_ty == 'bgv':
             self.parms = EncryptionParameters (scheme_type.bgv)
         elif scheme_ty == 'bfv':
@@ -17,9 +17,9 @@ class Seal(Backend):
         #poly_modulus_degree = 8192 * 4
         self.parms.set_poly_modulus_degree(poly_modulus_degree)
         #self.parms.set_coeff_modulus(CoeffModulus.BFVDefault(poly_modulus_degree))
-        self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [25, 25, 40, 50, 55, 60, 60]))
+        # self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [25, 25, 45, 45, 50]))
         #self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [25, 25, 40, 50, 55, 60, 60]))
-        #self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]))
+        self.parms.set_coeff_modulus(CoeffModulus.Create(poly_modulus_degree, [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]))
         
         #self.parms.set_plain_modulus(PlainModulus.Batching(poly_modulus_degree, 20))
         self.parms.set_plain_modulus(PlainModulus.Batching(poly_modulus_degree, 20))
@@ -40,11 +40,6 @@ class Seal(Backend):
         print(f'Plaintext matrix row size: {self.row_size}')
         print(f'Plaintext modulus: {self.parms.plain_modulus().value()}')
 
-    def set_norm_type(self, norm_ty):
-        self.norm_ty = int(norm_ty)
-
-    def get_norm_type(self):
-        return self.norm_ty
 
     def get_params_default(self):
         L = self.get_modulus_chain_highest_level()
@@ -71,7 +66,7 @@ class Seal(Backend):
         qlist = [None]*(len(y)-1)
         q=1
         i=0
-        for x in y[:-1]:
+        for x in y:
             q = q * x.value()
             qlist[i] = q
             i=i+1
@@ -79,24 +74,21 @@ class Seal(Backend):
 
     def get_modulus_chain_highest_level(self):
         y = self.parms.coeff_modulus()
-        return len(y)-2
+        return len(y)-1
 
     def get_params(self, omega):
         logq = 0
         q = 1
         y = self.parms.coeff_modulus()
-        y = y[0:(omega+1)]
+        y = y[:(omega+1)]
         for x in y:
             logq = logq + x.bit_count()
             # SEAL computes coeff_modulus, i.e. q, as product of a list of primes.
             q = q * x.value()
 
         t = self.parms.plain_modulus()
-        d = self.parms.poly_modulus_degree()
-        
-        # NOTE: Integer division overflows; so take the floor.
-        # l = q//2
-        return logq, t.value(), d #, l
+        d = self.parms.poly_modulus_degree() 
+        return logq, t.value(), d #, q
     
     def get_plain_modulus(self):
         return self.parms.plain_modulus()
@@ -114,8 +106,7 @@ class Seal(Backend):
         pod_matrix = [0] * self.slot_count
         pod_matrix[0] = int(i)
         x_plain = self.batch_encoder.encode(pod_matrix)
-        noise = max([int(x.split("x")[0], 16) for x in x_plain.to_string().split('+')])
-        return x_plain, noise
+        return x_plain
     
     def cipher_poly_init(self, s):
         x_plain = Plaintext(s)
@@ -123,22 +114,46 @@ class Seal(Backend):
         noise = self.decryptor.invariant_noise_budget(x_encrypted)
         return x_encrypted, noise
         
-    def vec_init(self, i, tag):
-        if tag == 3:
+    def vec_init(self, i, tag, do_pack=False):
+        # non-iteratable vector
+        if tag == 3 and do_pack:
             pod_matrix = [0] * self.slot_count
             for index, val in enumerate(i):
                 pod_matrix[index] = int(val)
             x_plain = self.batch_encoder.encode(pod_matrix)
             x_encrypted = self.encryptor.encrypt(x_plain)
-            noise = self.decryptor.invariant_noise_budget(x_encrypted)
-            return [x_encrypted], noise
-        else:
+            #noise = self.decryptor.invariant_noise_budget(x_encrypted)
+            return [x_encrypted], 0
+        # non-iteratable vector
+        elif tag == 4 and do_pack:
             pod_matrix = [0] * self.slot_count
             for index, val in enumerate(i):
                 pod_matrix[index] = int(val)
             x_plain = self.batch_encoder.encode(pod_matrix)
-            noise = max([int(x.split("x")[0], 16) for x in x_plain.to_string().split('+')])
-            return [x_plain], noise
+            # noise = max([int(x.split("x")[0], 16) for x in x_plain.to_string().split('+')])
+            return [x_plain], 0
+        # iteratable cipher vector 
+        elif tag == 3 and (not do_pack): 
+            return_list = []
+            for val in i:
+                pod_matrix = [0] * self.slot_count
+                pod_matrix[0] = int(val)
+                x_plain = self.batch_encoder.encode(pod_matrix)
+                x_encrypted = self.encryptor.encrypt(x_plain)
+                return_list.append(x_encrypted)
+            return return_list, 0
+        # iteratable plain vector 
+        elif tag == 4 and (not do_pack):
+            return_list = []
+            for val in i:
+                pod_matrix = [0] * self.slot_count
+                pod_matrix[0] = int(val)
+                x_plain = self.batch_encoder.encode(pod_matrix)
+                # x_encrypted = self.encryptor.encrypt(x_plain)
+                return_list.append(x_plain)
+            return return_list, 0
+                
+
 
     def vec_mult(self, p1, p2):
         t_lin = []

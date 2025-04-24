@@ -5,7 +5,7 @@ import sys
 import time
 from ila_parser import *
 from ila_lexer import *
-import gc
+# import gc
 import subprocess
 
 def usage():
@@ -86,18 +86,19 @@ if __name__ == '__main__':
     if len(sys.argv) != 4:
         usage()
         
-    backend = sys.argv[1]    
-    norm_ty = 2
+    backend = int(sys.argv[1])
     scheme_ty = sys.argv[2]
     filename = sys.argv[3]
 
     # read input file
     text = open(filename).read()
     tokens = ila_lex(text)
-    parse_result = ila_parse(tokens, norm_ty, backend, scheme_ty)
-    if not parse_result:
-        sys.stderr.write('Parse error!\n')
+    try:
+        parse_result = ila_parse(tokens, backend, scheme_ty)
+    except TypecheckError as e:
+        sys.stdout.write ('%s' %e)
         sys.exit(1)
+            
     ast, backend = parse_result[0].value, parse_result[1] 
     logq, coeff_mod, plain_mod, degree = backend.get_params_default()
     env = {}
@@ -108,26 +109,37 @@ if __name__ == '__main__':
     sys.stdout.write('Variable types:\n')
     #for name in gamma:
     #    sys.stdout.write('%s: %s\n' % (name, gamma[name]))
-    try:
-        # run type checker on the ast
-        sys.stdout.write('\nType infering ...\n')
-        error, gamma = ast[1].typeinfer(gamma, logq, coeff_mod, plain_mod, degree )
-        if error != "":
-            print(error)
-        else:
-            sys.stdout.write('ILA Program has passed type checking.\n')
-    except Exception as e:
-        sys.stdout.write('==================================\n')
-        sys.stdout.write('%s\n' % e)
-        sys.stdout.write('Returned error code: %s\n' % e.error_code)
-        sys.stdout.write('==================================\n')
-        code = e.error_code
-        if code == 3 or code == 13:
-            ms_infer_required = True
+    err = ""
+    start_time = time.perf_counter()
+    for i in range (0, 1000):
+        
+        try:
+            # run type checker on the ast
+            # sys.stdout.write('\nType infering ...\n')
+            error, gamma = ast[1].typeinfer(gamma, logq, coeff_mod, plain_mod, degree )
+            sys.stdout.write('Type infer passed')
+            sys.stdout.write('\n*****************************************\n')
+            if error != "":
+                print(error)
+    #        ast[1].typecheck(gamma)
+        except Exception as e:
+            err = e
+            #sys.stdout.write('==================================\n')
+            #sys.stdout.write('%s\n' % e)
+            #sys.stdout.write('Returned error code: %s\n' % e.error_code)
+            #ys.stdout.write('==================================\n')
+            #code = e.error_code
+            #if code == 3 or code == 13:
+            #    ms_infer_required = True
 
     #print("Types after inference", gamma)
+    end_time = time.perf_counter()
+    execution_time = (end_time - start_time)/1000
 
-    if (scheme_ty == "tfhe"):
+    print(f"Execution time: " + '{:.10f}'.format(execution_time) + " seconds\n")
+    print(err)
+
+    if (scheme_ty == 3): #change to '3'
         # compile to TFHE-rs
         subprocess.run(["rm", "-rf", "output"])
         subprocess.run(["cargo", "new", "output", "--bin"])
@@ -151,12 +163,25 @@ if __name__ == '__main__':
         sys.stdout.write('Final variable values:\n')
         for name in env:
             p = env[name]
-            if isinstance(p, Value):
-                val, noise =  decrypt_or_decode(p)
-                sys.stdout.write('%s: %s (remaining noise budget: %s)\n' % (name, val, noise))
+            if isinstance(p, VecValue):
+                # iterate through the vector
+                for v in p.v:
+                    if p.tag == 3:
+                        val, noise =  decrypt_or_decode(Value(v, 1))
+                    elif p.tag == 4:
+                        val, noise =  decrypt_or_decode(Value(v, 2))
+                    sys.stdout.write('%s: %s (remaining noise budget: %s)\n' % (name, val, noise))
+            elif isinstance(p, Value):
+                # Cipher value
+                if p.tag == 1 or p.tag == 2:
+                    val, noise =  decrypt_or_decode(p)
+                    sys.stdout.write('%s: %s (remaining noise budget: %s)\n' % (name, val, noise))
+                elif p.tag == 0:
+                    # plain int
+                    sys.stdout.write('%s: %s)\n' % (name, p.v))
             else:
-                sys.stdout.write('%s: 0  (variable initialized to undefined value) \n' % (name))
-
+                 sys.stdout.write('%s: 0  (variable initialized to undefined value) \n' % (name))
+                 
     eval_time = time.process_time() 
     #print(f'Eval  time in ms: {(eval_time-ty_time)*1000}\n')
 

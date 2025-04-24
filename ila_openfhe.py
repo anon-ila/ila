@@ -1,20 +1,25 @@
 from openfhe import *
 from ila_backend import *
+from math import log2
 
 class OpenFHE(Backend):
-    def __init__(self, norm_ty, scheme_ty):
+    def __init__(self, scheme_ty):
         # Sample Program: Step 1: Set CryptoContext
         self.scheme_ty = scheme_ty
-        if self.scheme_ty == 'bgv':
+        if self.scheme_ty == 1:
             self.params = CCParamsBGVRNS()
-        elif self.scheme_ty == 'bfv':
+        elif self.scheme_ty == 2:
             self.params = CCParamsBFVRNS()
         else:
             # default is BGV
             self.params = CCParamsBGVRNS()
                 
-        self.params.SetPlaintextModulus(65537)
-        self.params.SetMultiplicativeDepth(2)
+        # self.params.SetScalingTechnique(FIXEDMANUAL)
+        self.params.SetMultiplicativeDepth(3)
+        self.params.SetEvalAddCount(3)
+        self.params.SetPlaintextModulus(786433)
+        self.params.SetMaxRelinSkDeg(3)
+        self.params.SetScalingTechnique(FIXEDMANUAL)
 
         self.context = GenCryptoContext(self.params)
         # Enable features that you wish to use
@@ -32,12 +37,15 @@ class OpenFHE(Backend):
 
         # Generate the rotation evaluation keys
         self.context.EvalRotateKeyGen(self.key_pair.secretKey, [1, 2, -1, -2])
-
-    def set_norm_type(self, norm_ty):
-        self.norm_ty = int(norm_ty)
-
-    def get_norm_type(self):
-        return self.norm_ty
+        q = self.context.GetModulus()
+        d = self.context.GetCyclotomicOrder()/2
+        t = self.context.GetPlaintextModulus()
+        print('==================================\n')
+        print('q bits:', log2(q), "\n")
+        print('Coefficient Modulus (q): %d\n' % q)
+        print('Plaintext Modulus   (t): %d\n' % t)
+        print('Poly mod degree     (d): %d\n' % d)
+        print('==================================\n')
 
     def get_params_default(self):
         q = self.context.GetModulus()
@@ -60,7 +68,7 @@ class OpenFHE(Backend):
         return d+2
 
     def get_params(self, omega):
-        q = self.context.GetModulus()
+        # q = self.context.GetModulus()
         d = self.context.GetCyclotomicOrder()/2
         t = self.context.GetPlaintextModulus()
         # Deprecate: return 2
@@ -70,9 +78,9 @@ class OpenFHE(Backend):
         pass
 
     def plain_init(self, i):
-        vector_of_ints1 = [int(i), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        vector_of_ints1 = [int(i)]
         p = self.context.MakePackedPlaintext(vector_of_ints1)
-        return p, 0
+        return p
 
     def vec_init(self, i, tag):
         pass
@@ -109,6 +117,7 @@ class OpenFHE(Backend):
     
     def cipher_mult(self, c1, c2):
         c = self.context.EvalMult(c1, c2)
+
         return c
     
     def cipher_plain_mult(self, p1, p2):

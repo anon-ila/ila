@@ -3,15 +3,8 @@ import numpy as np
 from ila_backend import *
 
 class TFHErs(Backend):
-    def __init__(self, norm_ty, scheme_ty):
-        self.norm_ty = norm_ty
+    def __init__(self, scheme_ty):
         self.scheme_ty = scheme_ty
-
-    def set_norm_type(self, norm_ty):
-        self.norm_ty = int(norm_ty)
-
-    def get_norm_type(self):
-        return self.norm_ty
 
     def get_params_default(self):
         # return logq, q, t, d,

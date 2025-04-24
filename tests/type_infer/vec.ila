@@ -1,0 +1,5 @@
+query : vec cipher 3;
+x : cipher
+
+query := vinit[74 52 8]
+

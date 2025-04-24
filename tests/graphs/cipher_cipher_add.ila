@@ -1,0 +1,9 @@
+x : cipher;
+y : cipher
+
+x := cinit(10);
+y := cinit(0);
+while 5000000
+do
+      x := x @ y
+end

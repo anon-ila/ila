@@ -29,11 +29,10 @@ from ila_ast import *
 from functools import reduce
 
 # FIXME: Global seal, openfhe
-norm_ty = 2
-seal = Seal(norm_ty, 1)
-openfhe = OpenFHE(norm_ty, 1)
-tfhers = TFHErs(norm_ty, 3)
-backend = Backend(norm_ty, 1)
+#seal = Seal(1)
+#openfhe = OpenFHE(1)
+#tfhers = TFHErs(3)
+# backend = Backend(1)
 
 # Basic parsers
 def keyword(kw):
@@ -45,32 +44,39 @@ id = Tag(ID)
 poly = Tag(POLY)
 
 # Top level parser
-def ila_parse(tokens, nt, bkend, scheme_ty):
-    global norm_ty
+def ila_parse(tokens, bkend, sch_ty):
     global backend
-    norm_ty = nt
-    if bkend == "seal":
-        backend = seal
-    elif bkend == "openfhe":
-        backend = openfhe
-    elif bkend =="tfhe-rs":
-        backend = tfhers
+    global scheme_ty
+    scheme_ty = sch_ty
+    backend = Backend(scheme_ty)
+    if bkend == 1:
+        backend = Seal(scheme_ty)
+    elif bkend == 2:
+        backend = OpenFHE(scheme_ty)
+    elif bkend == 3:
+        backend = TFHErs(scheme_ty)
         
-    backend.set_norm_type(norm_ty)
     ast = parser()(tokens, 0)
     return ast, backend
 
 def parser():
-    return Phrase(type_list_section())    
+    try:
+        v = Phrase(type_list_section())
+        return v
+    except:
+        raise
+        
 
 # Type declaration
 def type_list_section():
 #    return keyword('startdecl') + type_list() + keyword('end') + stmt_list()
-    if type_list() == None:
-        raise TypecheckError('Need atleast one variable\n', 2)
-    if stmt_list() == None:
-        raise TypecheckError('Need atleast one statement\n', 2)
-    return  type_list()  + stmt_list()
+    ty_li = type_list()
+    st_li = stmt_list()
+    if ty_li == None:
+        sys.std.write('Need atleast one variable\n')
+    if st_li == None:
+        sys.std.write('Need atleast one statement\n')
+    return  ty_li + st_li
 
 def type_list():
     separator = keyword(';') ^ (lambda x: lambda l, r: CompoundDecl(l, r))
@@ -87,13 +93,13 @@ def ila_type():
     def process(parsed):
          tyname = parsed
          return IlaType(tyname)
-    return ila_cipher_type() | ila_plain_type() | ila_vector_type() | ila_matrix_type() ^ process #| ila_integer_type()
+    return ila_cipher_type() | ila_plain_type() | ila_vector_type() | ila_matrix_type() | ila_integer_type() ^ process
 
-""" def ila_integer_type():
+def ila_integer_type():
     def process(parsed):
         tyname = parsed
-        return ILAInteger()
-    return keyword('int') ^ process """
+        return IlaInteger()
+    return keyword('int') ^ process
 
 def ila_type_no_vec():
     def process(parsed):
@@ -134,8 +140,8 @@ def ila_cipher_type():
          if om_parsed:
             ((((_, inf),_),sup),_) = om_parsed
          else:
-            inf = sup = None
-         return CipherType(tyname, inf, sup, int(0), int(om))
+            inf = sup = 'NaN'
+         return CipherType(tyname, inf, sup, int(0), int(om), scheme_ty)
     return keyword('cipher') + Opt (keyword('<') + int_or_rational() + keyword(',') +  int_or_rational() + keyword('>'))  ^ process
 
 
@@ -146,7 +152,7 @@ def ila_plain_type():
             ((((_, inf),_),sup),_) = optional
          else:
              inf = sup = 0
-         return PlainType(tyname, inf, sup, int(0))
+         return PlainType(tyname, inf, sup, int(0), scheme_ty)
     return keyword('plain') + Opt( keyword('<') + int_or_rational() + keyword(',') +  int_or_rational()  + keyword('>'))  ^ process
 
 
@@ -189,7 +195,7 @@ def stmt():
 def assign_stmt():
     def process(parsed):
         ((name, _), exp) = parsed
-        return AssignStatement(name, exp)
+        return AssignStatement(name, exp, scheme_ty)
     return id + keyword(':=') + init_or_pexp_or_vexp() ^ process
     # return id + keyword(':=') + init_or_aexp() ^ process
 
@@ -215,7 +221,7 @@ def init_or_pexp_or_vexp():
     return init_or_aexp() | vexp() 
 
 def init_or_aexp():
-    return ila_envinit() | pexp() | ila_init() #| aexp()
+    return ila_envinit()   | pexp() | ila_init() | aexp_term()
 
 def ila_init():
     return ila_cipher_init() | ila_plain_init() | ila_vec_init() | ila_mat_init() | ila_cipher_poly_init()
@@ -223,14 +229,14 @@ def ila_init():
 def ila_envinit():
     def process(parsed):
          global backend
-         backend = Backend(norm_ty)
+         backend = Backend()
          return backend
     return keyword('envinit') + keyword('(') + keyword(')') ^ process
 
 def ila_cipher_poly_init():
     def process(parsed):
         # hard-code polynomial here
-        return CipherValue("1x^3 + 2x^2 + 3x^1 + 4", backend)
+        return CipherValue("1x^3 + 2x^2 + 3x^1 + 4", backend, scheme_ty)
     # can't find a way to input polynomial. Let it be id for now.
     return keyword('cpolyinit') + keyword('(')  + id  + keyword(')') ^ process
 
@@ -240,19 +246,19 @@ def polynomial():
 def ila_cipher_init():
     def process(parsed):
         (((_, _), i), _) = parsed
-        return CipherValue(str(i), backend)
+        return CipherValue(str(i), backend, scheme_ty)
     return keyword('cinit') + keyword('(') + int_or_rational() + keyword(')') ^ process
 
 def ila_plain_init():
     def process(parsed):
         (((_, _), i), _) = parsed
-        return PlainValue(i, backend=backend)
+        return PlainValue(i, backend, scheme_ty)
     return keyword('pinit') + keyword('(') + int_or_rational() + keyword(')') ^ process
 
 def ila_vec_init():
     def process(parsed):
         (((_, _), i), _) = parsed
-        return VecValue(i, backend=backend)
+        return VecValue(i, length= len(i), backend=backend)
     return keyword('vinit') + keyword('[') + Rep(int_or_rational()) + keyword(']') ^ process
 
 
@@ -262,13 +268,20 @@ def ila_mat_init():
         i = [x[0][1] for x in i]
         return VecValue(i, backend = backend, size = (len(i[0]),len(i)))
     return keyword('minit') + keyword('(')  + Rep(keyword('[') + Rep(int_or_rational()) + keyword(']'))  + keyword(')') ^ process
-   
+
+def var_or_int():
+    return exp_variable() | int_or_rational()
+
+def exp_variable():
+    return  (id  ^ (lambda v: VarAexp(v)))
+
 def while_stmt():
     def process(parsed):
         ((((_, num), _), body), _) = parsed
         return WhileStatement(num, body)
-    return keyword('while') + int_or_rational() + \
-           keyword('do') + Lazy(stmt_list) + \
+    return keyword('while') + var_or_int() + \
+           keyword('do') + \
+           Lazy(stmt_list) + \
            keyword('end') ^ process
 
 # Polynomial expressions
@@ -283,7 +296,7 @@ def pexp_term():
 def pexp_unary():
     def process(parsed):
       (((_, _), e), _) = parsed
-      return UnaryopPexp('ms', e, backend)  
+      return UnaryopPexp('ms', e, backend, scheme_ty)  
     return keyword('modswitch') + keyword('(') +  Lazy(pexp) + keyword(')') ^ process
 
 def pexp_group():
@@ -298,7 +311,8 @@ def vexp():
                     process_vec_binop)
 
 def vexp_term():
-    return  vexp_unary() | vexp_variable() | vexp_group() 
+    return  vexp_unary() | vexp_variable() | vexp_index() | vexp_group() 
+
 
 def vexp_unary():
     def process(parsed):
@@ -306,11 +320,42 @@ def vexp_unary():
       return UnaryopPexp('ms', e, backend)  
     return keyword('modswitch') + keyword('(') +  Lazy(vexp) + keyword(')') ^ process
 
+def pvar_or_int():
+    return pexp_variable() | int_or_rational()
+    
+def vexp_index():
+    def process(parsed):
+      (((((_, _), x), _), e), _) = parsed
+      return BinopVexp('idx', x, e, backend, scheme_ty)  
+#    return vexp_variable() + keyword('[') +  int_or_rational() + keyword(']') ^ process
+    return keyword('index') + keyword('(') + vexp_variable() + keyword(',') +  pvar_or_int() + keyword(')') ^ process
+
 def vexp_group():
     return keyword('(') + Lazy(vexp) + keyword(')') ^ process_group
 
 def vexp_variable():
     return  (id  ^ (lambda v: VarVexp(v)))
+
+# Arithmetic expressions
+def aexp():
+    return precedence(aexp_term(),
+                      aexp_precedence_levels,
+                      process_binop)
+
+
+def aexp_term():
+    return aexp_value() | aexp_group()
+
+def aexp_group():
+    return keyword('(') + Lazy(aexp) + keyword(')') ^ process_group
+           
+def aexp_value():
+    return (num ^ (lambda i: IntAexp(i))) | \
+        (rational ^ (lambda f: FloatAexp(f))) | \
+           (id  ^ (lambda v: VarAexp(v)))
+
+def process_binop(op):
+    return lambda l, r: BinopAexp(op, l, r)
 
 # An ILA-specific combinator for binary operator expressions (aexp, pexp and bexp)
 def precedence(value_parser, precedence_levels, combine):
@@ -323,10 +368,10 @@ def precedence(value_parser, precedence_levels, combine):
 
 # Miscellaneous functions for binary and relational operators
 def process_poly_binop(op):
-    return lambda l, r: BinopPexp(op, l, r, backend)
+    return lambda l, r: BinopPexp(op, l, r, backend, scheme_ty)
 
 def process_vec_binop(op):
-    return lambda l, r: BinopVexp(op, l, r, backend)
+    return lambda l, r: BinopVexp(op, l, r, backend, scheme_ty)
 
 
 def process_group(parsed):

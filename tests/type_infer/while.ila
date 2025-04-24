@@ -1,0 +1,6 @@
+x : cipher
+
+while 4
+do
+   x := cinit(10)
+end

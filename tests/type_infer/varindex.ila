@@ -1,0 +1,9 @@
+query : vec cipher 3;
+x : cipher;
+i: int
+
+query := vinit[74 52 8];
+i := 1;
+
+# variable index operation
+x := index(query, i)

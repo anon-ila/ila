@@ -1,0 +1,18 @@
+client_data : vec cipher 20;
+server_data : vec cipher 20;
+random_plain_data : vec plain 20;
+result : cipher;
+n_unit : plain;
+i : int
+
+i := 20;
+client_data := vinit[6 -259 -72 0 -169 233 70 -263 -324 320 -125 275 135 -9 58 -308 122 -132 -152 24];
+server_data := vinit[158 297 86 -158 -157 149 150 306 178 35 -293 -22 -13 -162 -239 32 -38 -165 -28 320];
+random_plain_data := vinit[14 41 46 -179 7 270 129 -180 -313 303 -234 -17 -232 -308 128 140 -79 35 45 160];
+result := cinit(1);
+n_unit := pinit(-1);
+while i
+do
+  t := index(random_plain_data, i);
+  result := t & result
+end

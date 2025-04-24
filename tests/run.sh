@@ -6,8 +6,8 @@ if [ "$#" -ne 2 ]; then
    echo ""
    echo "Usage: $0 <backend> <scheme>"
    echo "       where"
-   echo "            backend = { seal, openfhe}"
-   echo "            scheme  = { bgv, bfv, tfhe}"
+   echo "            backend = { 1 (for seal), 2 (for openfhe), 3 (for tfhe-rs)}"
+   echo "            scheme  = { 1 (for bgv),  2 (for bfv), 3 (for tfhe)}"
    echo ""
    exit 1
 fi

@@ -33,3 +33,8 @@ Usage: ila <backend> <scheme_type> <filename>
 
 
 
+## References
+
+### Acknowledgements
+
+The lexer and parser portions of the ILA interpreter are based on https://www.jayconrod.com/posts/37/a-simple-interpreter-from-scratch-in-python-part-1.

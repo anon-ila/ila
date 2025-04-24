@@ -1,0 +1,14 @@
+x : cipher;
+y : cipher
+
+x := cinit(1);
+y := cinit(1);
+while 3
+do
+ x := x & y
+end;
+
+while 75
+do
+x := x @ x
+end

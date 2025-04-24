@@ -1,13 +1,11 @@
 n : cipher;
 p : plain;
-q : int
 
-
-n := 5;
-p := 1;
-if q >= 0 then
+n := cinit(5);
+p := cinit(1);
+if 0 then
   p := p & n
 else
-  n := n @ 1;
+  n := n @ n;
   p := n @ p
 end
