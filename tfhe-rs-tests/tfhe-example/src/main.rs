@@ -17,8 +17,8 @@ fn main() {
     // Change FheUint2 to FheUint4, FheUint8, FheUint16, .. FheUint2048
     // FheUint2048 run time is about 8 to 10 hours.
 
-    let ct_1 = FheUint2::encrypt(msg1, &client_key);
-    let ct_2 = FheUint2::encrypt(msg2, &client_key);
+    let ct_1 = FheUint32::encrypt(msg1, &client_key);
+    let ct_2 = FheUint32::encrypt(msg2, &client_key);
     let (mut result, mut overflowed) = (&ct_1).overflowing_add(&ct_2);
     if overflowed.decrypt(&client_key){
       let lapsed = now.elapsed();

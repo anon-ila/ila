@@ -5,7 +5,7 @@ import sys
 #from PIL import Image
 
 numpy.set_printoptions(threshold=sys.maxsize)
-im = imread("image.png")
+im = imread("./artifact_tests/image.png")
 a = numpy.asarray(im)[:,:,0]
 a = np.resize(a, (20, 20))
 img = '(' + str(a)[1:-1] +')'
