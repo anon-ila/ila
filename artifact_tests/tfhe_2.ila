@@ -1,0 +1,10 @@
+x1 : cipher <0,1>;
+x2 : cipher <1,3>;
+z : cipher
+
+x1 := cinit(1);
+x2 := cinit(3);
+while 450
+do
+  z := x1 @ x2
+end

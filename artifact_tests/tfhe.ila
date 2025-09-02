@@ -1,0 +1,31 @@
+x1 : cipher <-1,1>;
+x2 : cipher <-1,1>;
+x3 : cipher <-1,1>;
+x4 : cipher ;
+x5 : cipher <-1,1>;
+x6 : cipher <-1,1>;
+x7 : cipher <-1,1>;
+x8 : cipher <-1,1>;
+x9 : cipher <-1,1>;
+y : cipher;
+z : cipher
+
+x1 := cinit(0);
+x2 := cinit(1);
+x3 := cinit(-1);
+x5 := cinit(1);
+x6 := cinit(-1);
+x7 := cinit(0);
+x8 := cinit(-1);
+x9 := cinit(0);
+while 450
+do
+  y := x1 @ x2 @ x3;
+  x4 := x5 @ x6 @ x7;
+  z := x4 @ x8 @ x9
+end;
+
+while 40
+do
+ y := y @ x4 @ z
+end

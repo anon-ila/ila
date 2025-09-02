@@ -3,7 +3,7 @@ from ila_backend import *
 from math import log2
 
 class OpenFHE(Backend):
-    def __init__(self, scheme_ty):
+    def __init__(self, scheme_ty, depth):
         # Sample Program: Step 1: Set CryptoContext
         self.scheme_ty = scheme_ty
         if self.scheme_ty == 1:
@@ -14,19 +14,21 @@ class OpenFHE(Backend):
             # default is BGV
             self.params = CCParamsBGVRNS()
                 
-        # self.params.SetScalingTechnique(FIXEDMANUAL)
-        self.params.SetMultiplicativeDepth(3)
-        self.params.SetEvalAddCount(3)
+        self.params.SetMultiplicativeDepth(depth)
         self.params.SetPlaintextModulus(786433)
         self.params.SetMaxRelinSkDeg(3)
-        self.params.SetScalingTechnique(FIXEDMANUAL)
+        
+        if self.scheme_ty == 1:
+            self.params.SetScalingTechnique(FIXEDMANUAL)
+        #else:
+        #    self.params.SetScalingTechnique(FIXEDAUTO)
 
         self.context = GenCryptoContext(self.params)
         # Enable features that you wish to use
         self.context.Enable(PKESchemeFeature.PKE)
         self.context.Enable(PKESchemeFeature.KEYSWITCH)
         self.context.Enable(PKESchemeFeature.LEVELEDSHE)
-
+        self.context.Enable(PKESchemeFeature.ADVANCEDSHE)
         # Sample Program: Step 2: Key Generation
 
         # Generate a public/private key pair
@@ -52,7 +54,7 @@ class OpenFHE(Backend):
         d = self.context.GetCyclotomicOrder()/2
         t = self.context.GetPlaintextModulus()
         # Deprecate: return 2
-        return 2, q,  t, d
+        return log2(q), q,  t, d
 
 
     def get_coeff_modulus_list(self):
@@ -117,7 +119,6 @@ class OpenFHE(Backend):
     
     def cipher_mult(self, c1, c2):
         c = self.context.EvalMult(c1, c2)
-
         return c
     
     def cipher_plain_mult(self, p1, p2):
@@ -138,75 +139,8 @@ class OpenFHE(Backend):
     def decrypt(self, c, length = None):
         p = self.context.Decrypt(c, self.key_pair.secretKey)
         # Openfhe does not have noise budget
-        return p, 0
-        
-    def cipher_mult_test(self):
-         # First plaintext vector is encoded
-         vector_of_ints1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-         plaintext1 = self.context.MakePackedPlaintext(vector_of_ints1)
-
-         # Second plaintext vector is encoded
-         vector_of_ints2 = [3, 2, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-         plaintext2 = self.context.MakePackedPlaintext(vector_of_ints2)
-
-         # Third plaintext vector is encoded
-         vector_of_ints3 = [1, 2, 5, 2, 5, 6, 7, 8, 9, 10, 11, 12]
-         plaintext3 = self.context.MakePackedPlaintext(vector_of_ints3)
-
-         # The encoded vectors are encrypted
-         ciphertext1 = self.context.Encrypt(self.key_pair.publicKey, plaintext1)
-         ciphertext2 = self.context.Encrypt(self.key_pair.publicKey, plaintext2)
-         ciphertext3 = self.context.Encrypt(self.key_pair.publicKey, plaintext3)
-
-         #  Sample Program: Step 4: Evaluation
-
-         # Homomorphic additions
-         ciphertext_add12 = self.context.EvalAdd(ciphertext1, ciphertext2)
-         ciphertext_add_result = self.context.EvalAdd(ciphertext_add12, ciphertext3)
-
-         # Homomorphic Multiplication
-         ciphertext_mult12 = self.context.EvalMult(ciphertext1, ciphertext2)
-         ciphertext_mult_result = self.context.EvalMult(ciphertext_mult12, ciphertext3)
-
-         # Homomorphic Rotations
-         ciphertext_rot1 = self.context.EvalRotate(ciphertext1, 1)
-         ciphertext_rot2 = self.context.EvalRotate(ciphertext1, 2)
-         ciphertext_rot3 = self.context.EvalRotate(ciphertext1, -1)
-         ciphertext_rot4 = self.context.EvalRotate(ciphertext1, -2)
-
-             # Decrypt the result of additions
-         plaintext_add_result = self.context.Decrypt(
-             ciphertext_add_result, self.key_pair.secretKey
-         )
-
-         # Decrypt the result of multiplications
-         plaintext_mult_result = self.context.Decrypt(
-             ciphertext_mult_result, self.key_pair.secretKey
-         )
-
-         # Decrypt the result of rotations
-         plaintextRot1 = self.context.Decrypt(ciphertext_rot1, self.key_pair.secretKey)
-         plaintextRot2 = self.context.Decrypt(ciphertext_rot2, self.key_pair.secretKey)
-         plaintextRot3 = self.context.Decrypt(ciphertext_rot3, self.key_pair.secretKey)
-         plaintextRot4 = self.context.Decrypt(ciphertext_rot4, self.key_pair.secretKey)
-
-         plaintextRot1.SetLength(len(vector_of_ints1))
-         plaintextRot2.SetLength(len(vector_of_ints1))
-         plaintextRot3.SetLength(len(vector_of_ints1))
-         plaintextRot4.SetLength(len(vector_of_ints1))
-
-         print("Plaintext #1: " + str(plaintext1))
-         print("Plaintext #2: " + str(plaintext2))
-         print("Plaintext #3: " + str(plaintext3))
-
-         # Output Results
-         print("\nResults of homomorphic computations")
-         print("#1 + #2 + #3 = " + str(plaintext_add_result))
-         print("#1 * #2 * #3 = " + str(plaintext_mult_result))
-         print("Left rotation of #1 by 1 = " + str(plaintextRot1))
-         print("Left rotation of #1 by 2 = " + str(plaintextRot2))
-         print("Right rotation of #1 by 1 = " + str(plaintextRot3))
-         print("Right rotation of #1 by 2 = " + str(plaintextRot4))
+        return p.GetPackedValue(), 0
+    
 
         
 

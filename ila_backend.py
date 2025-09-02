@@ -2,9 +2,10 @@ from seal import *
 import numpy as np
 
 class Backend():
-    def __init__(self, scheme_ty):
+    def __init__(self, scheme_ty, depth):
         self.scheme_ty = scheme_ty
-
+        self.depth = depth
+        
     def get_params_default(self):
         pass
 

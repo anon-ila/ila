@@ -1,5 +1,6 @@
 import math
-import numpy as np
+# import numpy as np
+from decimal import *
 from util import *
 
 class BFVAssignStatement():
@@ -58,10 +59,10 @@ class BFVAssignStatement():
         return 1
                 
                 
-    def typeinfer(self, gamma, logq, q,t,d):
+    def typeinfer(self, def_list, gamma, logq, q,t,d):
         error = ""
         if 'matrix' in gamma[self.name]:
-            type_exp, sort_exp, size_exp, alpha_list = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_exp, sort_exp, size_exp, alpha_list = self.exp.typeinfer(def_list, gamma, logq, q,t,d)
             type_name, sort_name, size_name, type_list = get_vec_type(gamma[self.name])
             rows = size_name[0]
             colmns = size_name[1]
@@ -85,7 +86,7 @@ class BFVAssignStatement():
                             value, noise = self.exp.backend.cipher_init(colmn_ele)
                             new_col.append(value)
                             new_noise.append(noise)
-                            type_list[index][colmn_index] = (np.longdouble('NaN'),np.longdouble('NaN'),noise) 
+                            type_list[index][colmn_index] = (Decimal('NaN'),Decimal('NaN'),noise) 
                         new_v.append(new_col)
                         new_eps.append(new_noise)
                     self.exp.v = new_v
@@ -111,7 +112,7 @@ class BFVAssignStatement():
                             noise = new_v.eps
                             new_col.append(value)
                             new_noise.append(noise)
-                            type_list[index][colmn_index] = [(np.longdouble('NaN'),np.longdouble('NaN'),noise)]
+                            type_list[index][colmn_index] = [(Decimal('NaN'),Decimal('NaN'),noise)]
                         new_v.append(new_col)
                         new_eps.append(new_noise)
                     self.exp.v = new_v
@@ -121,7 +122,7 @@ class BFVAssignStatement():
             return("", gamma)
 
         elif 'vec' in gamma[self.name]:
-            type_exp, sort_exp, length_exp, alpha_list = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_exp, sort_exp, length_exp, alpha_list = self.exp.typeinfer(def_list, gamma, logq, q,t,d)
             type_name, sort_name, length_name, type_list = get_vec_type(gamma[self.name])
             if sort_exp != sort_name and alpha_list != []:
                 raise TypecheckError("cannot assign %s vec to a %s vec in %s\n" % (sort_exp, sort_name, self), 2)
@@ -134,7 +135,7 @@ class BFVAssignStatement():
                     sort_exp = sort_name
                     self.exp.v, self.exp.eps = self.exp.backend.vec_init(self.exp.v, 3) #as self.exp.tag == 3
                     if len(type_list) == 0: #means type declaration is like x : vec cipher n 
-                        type_list.extend([(np.longdouble('NaN'),np.longdouble('NaN'),self.exp.eps)] * length_name)
+                        type_list.extend([(Decimal('NaN'),Decimal('NaN'),self.exp.eps)] * length_name)
                         gamma[self.name] = type_name+";"+sort_name+";"+str(length_name)+';'+json.dumps(type_list)
                         self.exp.type_list = type_list
                         self.exp.length = length_name
@@ -143,7 +144,7 @@ class BFVAssignStatement():
                     self.exp.tag = 4
                     sort_exp = sort_name
                     self.exp.v, self.eps = self.exp.backend.vec_init(self.exp.v, 4 ) # as self.exp.tag == 4
-                    type_list.extend([(np.longdouble('NaN'),np.longdouble('NaN'),self.exp.eps)] * length_name)
+                    type_list.extend([(Decimal('NaN'),Decimal('NaN'),self.exp.eps)] * length_name)
                     gamma[self.name] = type_name+";"+sort_name+";"+str(length_name)+';'+json.dumps(type_list)
                     self.exp.type_list = type_list
                     self.exp.length = length_name
@@ -158,24 +159,24 @@ class BFVAssignStatement():
                 return("", gamma)
         
         elif 'cipher' in gamma[self.name]:
-            type_name, (inf_exp, sup_exp, eps_exp, level_exp) = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_name, (inf_exp, sup_exp, eps_exp, level_exp) = self.exp.typeinfer(def_list, gamma, logq, q,t,d)
             if type_name != "cipher":
                 raise TypecheckError('Exp type is' + type_name + '; expected cipher: %s\n' %  self, 11)
             (inf_name, sup_name, eps_name, _) = get_cipher_type_attributes(gamma[self.name])
             if (inf_exp == 'NaN') and (sup_exp == 'NaN'):
                 self.exp.inf = inf_exp = inf_name
                 self.exp.sup = sup_exp = sup_name
-            if not self.is_sub_type((inf_name, sup_name, eps_name), (inf_exp, sup_exp, eps_exp)):
-                raise TypecheckError(self.name + ' is not a subtype in the assignment: %s\n' % self, 11)
+            #if not self.is_sub_type((inf_name, sup_name, eps_name), (inf_exp, sup_exp, eps_exp)):
+            #    raise TypecheckError(self.name + ' is not a subtype in the assignment: %s\n' % self, 11)
             gamma[self.name] = "cipher <" + str(inf_exp)+ ", " + str(sup_exp)+ ", " + str(eps_exp) + ", " + str(level_exp) + ">"
-            # print("Noise budget at test %s is %d\n" % (self , math.log2(1/2 - eps_exp)))
+            # print("Noise budget at test %s is %d\n" % (self , Decimal.log2(1/2 - eps_exp)))
             if eps_exp > 1/2:
                 raise TypecheckError(' Noise over flow: %s\n' % self, 11)
             if (inf_exp != 'NaN' and inf_exp <= -t/2) or (sup_exp != 'NaN' and sup_exp > t/2):
                 error = "Plain text over flow"
             return (error, gamma)
         elif 'plain' in gamma[self.name]:
-            type_name, exp_type = self.exp.typeinfer(gamma, logq, q, t,d)
+            type_name, exp_type = self.exp.typeinfer(def_list, gamma, logq, q, t,d)
             if type_name != "plain":
                 raise TypecheckError('Exp type is' + type_name + '; expected plain: %s\n' %  self, 11)
             (inf_name, sup_name, eps_name) = get_plain_type_attributes(gamma[self.name], scheme=1)
@@ -186,8 +187,8 @@ class BFVAssignStatement():
             if (inf_exp == 'NaN') and (sup_exp == 'NaN'):
                 self.exp.inf = inf_exp = inf_name
                 self.exp.sup = sup_exp = sup_name
-            if not self.is_sub_type((inf_name, sup_name, eps_name), (inf_exp, sup_exp, eps_exp)):
-                TypecheckError(self.name + ' is not a subtype in the assignment: %s\n' % self, 11)
+            #if not self.is_sub_type((inf_name, sup_name, eps_name), (inf_exp, sup_exp, eps_exp)):
+            #    TypecheckError(self.name + ' is not a subtype in the assignment: %s\n' % self, 11)
             gamma[self.name] = "plain <" + str(inf_exp)+ ", " + str(sup_exp)+ ", " + str(eps_exp) + ">"
             if eps_exp > 1/2:
                 raise TypecheckError(' Noise over flow: %s\n' % self, 11)
@@ -228,8 +229,8 @@ class BFVPlainValue():
         # call backend module
         self.v = backend.plain_init(i)
         _, q, t, d = backend.get_params_default()
-        self.eps = np.longdouble(0)
-        self.eps = 12 * (t/q) * math.sqrt(  ( (1/12) + ((3.2 * 3.2) * ((4 * d/3) + 1)) ) )
+        self.eps = Decimal(0)
+        self.eps = 12 * (t/q) * Decimal.sqrt(  ( (1/12) + ((3.2 * 3.2) * ((4 * d/3) + 1)) ) )
         
     def __repr__(self):
         return 'plain %s' % self.v
@@ -242,7 +243,7 @@ class BFVPlainValue():
         # Return value
         return self
 
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
         return ('plain', ('NaN', 'NaN', self.eps))
 
     def typecheck(self, gamma):
@@ -266,9 +267,10 @@ class BFVCipherValue():
         except ValueError:
             self.v, _ = backend.cipher_poly_init(i)
         _, q, t, d = backend.get_params_default()
-        self.eps = np.longdouble(0)
-        self.eps = 6 * (t/q) * math.sqrt( d  * ( (1/12) + ((3.2 * 3.2) * ((4 * d/3) + 1)) ) )
-        #self.eps = 12 * (t/q) * (d * (t-1)/12 + 3.2 * (math.sqrt(4 * (d ** 2)/3 + d)))
+        #self.eps = Decimal(0)
+        self.eps = Decimal(t/q * (d * (t-1)/2 + 2 * 3.2 * (math.sqrt((12 * d * d) + (9 * d)))))
+        #self.eps = 6 * Decimal (t/q) * Decimal (Decimal.sqrt( Decimal(d)  * ( Decimal (1/12) + (Decimal (3.2 * 3.2) * (Decimal (4 * d/3) + 1)) ) ))
+        #self.eps = 12 * (t/q) * (d * (t-1)/12 + 3.2 * (Decimal.sqrt(4 * (d ** 2)/3 + d)))
         self.level = 0
             
     def typecheck_relaxed(self, gamma):
@@ -286,8 +288,8 @@ class BFVCipherValue():
         # Return value
         return self
     
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
-        return ('cipher', ('NaN', 'NaN', np.longdouble(self.eps), self.level))
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
+        return ('cipher', ('NaN', 'NaN', Decimal(self.eps), self.level))
     
     def typecheck(self, gamma):
         return '%s' % BFVCipherType('cipher', self.inf, self.sup, self.eps)
@@ -334,12 +336,12 @@ class BFVBinopPexp():
     def __repr__(self):
         return '(%s %s %s)' % (self.left, self.op, self.right)
     
-    def typeinfer(self, gamma, logq, q,t ,d):
+    def typeinfer(self, def_list, gamma, logq, q,t ,d):
         if "&" == self.op:
             inf = sup = None
-            noise = np.longdouble(0)
-            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(gamma, logq, q,t ,d)
-            rtyname, temp_list = (self.right).typeinfer(gamma, logq, q,t,d)
+            noise = Decimal(0)
+            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(def_list, gamma, logq, q,t ,d)
+            rtyname, temp_list = (self.right).typeinfer(def_list, gamma, logq, q,t,d)
             (rinf,rsup,rnoise, rlevel ) = temp_list
             if ltyname == rtyname == "plain":
                 raise Exception("Plain multiplication is not supported currently")
@@ -351,24 +353,33 @@ class BFVBinopPexp():
                 inf = min([linf*rinf, linf*rsup, rinf*lsup, lsup*rsup])
                 sup = max([linf*rinf, linf*rsup, rinf*lsup, lsup*rsup])
             if ltyname == "plain":
-                noise =  12 * (t/q) * (math.sqrt(d/12 + 3.2 * 3.2 * (d ** 2) + 3.2 * 3.2 * 3.2 * (d ** 3))) + (3  * rnoise * rnoise) + (rnoise + rnoise) * 12 * t  * (math.sqrt (d/12 + 3.2* 3.2* (d ** 2)))
-                noise = noise /( math.sqrt(d))
-                #noise =  12 * rnoise * math.sqrt((t ** 2 - 1) * d/12)
+                noise =  12 * (t/q) * (Decimal.sqrt(d/12 + 3.2 * 3.2 * (d ** 2) + 3.2 * 3.2 * 3.2 * (d ** 3))) + (3  * rnoise * rnoise) + (rnoise + rnoise) * 12 * t  * (Decimal.sqrt (d/12 + 3.2* 3.2* (d ** 2)))
+                noise = noise /( Decimal.sqrt(d))
+                #noise =  12 * rnoise * Decimal.sqrt((t ** 2 - 1) * d/12)
             elif rtyname == 'plain':
-                noise =  12 * (t/q) * (math.sqrt(d/12 + 3.2 * 3.2 * (d ** 2) + 3.2 * 3.2 * 3.2 * (d ** 3))) + (3  * lnoise * lnoise) + (lnoise + lnoise) * 12 * t  * (math.sqrt (d/12 + 3.2* 3.2* (d ** 2)))
-                noise = noise /( math.sqrt(d))
+                noise =  12 * (t/q) * (Decimal.sqrt(d/12 + 3.2 * 3.2 * (d ** 2) + 3.2 * 3.2 * 3.2 * (d ** 3))) + (3  * lnoise * lnoise) + (lnoise + lnoise) * 12 * t  * (Decimal.sqrt (d/12 + 3.2* 3.2* (d ** 2)))
+                noise = noise /( Decimal.sqrt(d))
             else:
-                noise =  6 * (t/q) * (math.sqrt(d/12 + 3.2 * 3.2 * (d ** 2) + 3.2 * 3.2 * 3.2 * (d ** 3))) + (3  * lnoise * rnoise) + (lnoise + rnoise) * 12 * t  * (math.sqrt (d/12 + 3.2* 3.2* (d ** 2)))
+                temp1 = Decimal(t * math.sqrt(3 * d  + (2 * d * d))) * (lnoise + rnoise)
+                temp2 = 3*lnoise*rnoise
+                temp3 = Decimal(t/q)*Decimal(math.sqrt(3*d + 2*d*d + 4*d*d*d/3))
+                noise = temp1 + temp2 + temp3
+                #temp_1 = Decimal.sqrt (Decimal(d/12) + Decimal (3.2* 3.2)* Decimal (d ** 2))
+                #temp_2 = 6 * Decimal (t/q)
+                #temp_3 = Decimal.sqrt(Decimal(d/12) + Decimal (3.2 * 3.2) * Decimal (d ** 2) + Decimal (3.2 * 3.2 * 3.2) * Decimal (d ** 3))
+                #temp_4 = 3  * lnoise * rnoise
+                #temp_5 = lnoise + rnoise * 12 * Decimal(t) 
+                #noise =  temp_2 * temp_3 + temp_4 + temp_5 * temp_1
                 #level = llevel + rlevel 
-                #noise = D  * (t/q) * (math.sqrt(d/12 + (d ** 2)/18 + (d ** 3)/27) + 3 * lnoise * rnoise + (lnoise + rnoise) * D * t * (math.sqrt (d/12 + (d ** 2)/18))
+                #noise = D  * (t/q) * (Decimal.sqrt(d/12 + (d ** 2)/18 + (d ** 3)/27) + 3 * lnoise * rnoise + (lnoise + rnoise) * D * t * (Decimal.sqrt (d/12 + (d ** 2)/18))
             # ell = log q/loq w ; in seal log w is undefined.
             # assuming log w = 90   
-            #print("Noise budget at %s is %d\n" % (self , math.log2(q/2 - noise)))
+            #print("Noise budget at %s is %d\n" % (self , Decimal.log2(q/2 - noise)))
             return("cipher", (inf,sup, noise, 0))
             #return("cipher", (inf,sup, (lnoise*rnoise), level))
         if "@" == self.op:
-            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(gamma, logq, q,t,d)
-            rtyname, (rinf,rsup,rnoise, rlevel) = (self.right).typeinfer(gamma, logq, q,t,d)
+            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(def_list, gamma, logq, q,t,d)
+            rtyname, (rinf,rsup,rnoise, rlevel) = (self.right).typeinfer(def_list, gamma, logq, q,t,d)
             if ltyname == rtyname == "plain":
                 raise Exception("Plain addition is not supported currently")
             inf = sup = noise = 'NaN'

@@ -89,16 +89,17 @@ class CompoundDecl(Type):
         self.second.eval(gamma)
 
 class AssignStatement(Statement):
-    def __init__(self, name, exp, scheme_ty):
+    def __init__(self, name, exp, scheme_ty, backend, id):
         # self.name := self.exp
         self.name = name
         self.exp = exp
-        self.bgv = None
+        self.id = id
+        self.bgv = backend
         self.bfv = None
         self.tfhe = None
         self.scheme_ty =  int(scheme_ty)
         if (self.scheme_ty == 1):
-            self.bgv = BGVAssignStatement(name, exp)
+            self.bgv = BGVAssignStatement(name, exp, backend, id)
         elif (self.scheme_ty == 2):
             self.bfv = BFVAssignStatement(name, exp)
         elif (self.scheme_ty == 3):
@@ -136,14 +137,14 @@ class AssignStatement(Statement):
             v = self.tfhe.is_sub_type(type_1, type_2)
         return v
                 
-    def typeinfer(self, gamma, logq, q,t,d):
+    def typeinfer(self, def_list, gamma, logq, q, t, d):
         error, gamma_new = None, None
         if (self.scheme_ty == 1):
-            (error, gamma_new) = self.bgv.typeinfer(gamma, logq, q, t, d)
+            (error, gamma_new) = self.bgv.typeinfer(def_list,gamma, logq, q, t, d)
         if (self.scheme_ty == 2):
-            (error, gamma_new) = self.bfv.typeinfer(gamma, logq, q, t, d)
+            (error, gamma_new) = self.bfv.typeinfer(def_list, gamma, logq, q, t, d)
         if (self.scheme_ty == 3):
-            (error, gamma_new) = self.tfhe.typeinfer(gamma, logq, q, t, d)
+            (error, gamma_new) = self.tfhe.typeinfer(def_list, gamma, logq, q, t, d)
         return error, gamma_new
 
     def typecheck(self, gamma):
@@ -154,16 +155,6 @@ class AssignStatement(Statement):
             v = self.bfv.typecheck(gamma)
         elif (self.scheme_ty == 3):
             v = self.tfhe.typecheck(gamma)
-        return v
-        
-    def typecheck_relaxed(self, gamma):
-        v = False
-        if (self.scheme_ty == 1):
-            v = self.bgv.typecheck_relaxed(gamma)
-        elif (self.scheme_ty == 2):
-            v = self.bfv.typecheck_relaxed(gamma)
-        elif (self.scheme_ty == 3):
-            v = self.tfhe.typecheck_relaxed(gamma)
         return v
         
     def ms_infer(self, gamma_rel, gamma, om):
@@ -198,7 +189,10 @@ class CompoundStatement(Statement):
     def compile(self):
         sfirst = self.first.compile()
         ssecond = self.second.compile()
-        return sfirst + ssecond
+        if ssecond != None:
+            return sfirst + ssecond
+        else:
+            return sfirst
     
     def eval(self, env):
         self.first.eval(env)
@@ -210,27 +204,25 @@ class CompoundStatement(Statement):
                 return True
         else:
             return False """
-    
-    def typeinfer(self,gamma, logq, q, t, d):
+    # (def_list, gamma, logq, coeff_mod, plain_mod, degree)
+    def typeinfer(self, def_list, gamma, logq, q, t, degree ):
         try: 
-            error, gamma1 = self.first.typeinfer(gamma,logq, q,t,d)
+            error, gamma1 = self.first.typeinfer(def_list,gamma,logq, q,t,degree)
         except Exception as e:
-            #print (e.message)
             raise e #TypecheckError(e.message, e.error_code)
         if error != "":
             try:
-                gamma2 = self.second.typeinfer(gamma1,logq,q,t,d)[1] 
-                return(error,gamma2)
-            except Exception as e:
-               #print (e.message)
-               raise e #TypecheckError(e.message, e.error_code)
-        else:  
-            try:
-                error,gamma2 = self.second.typeinfer(gamma1,logq,q,t,d)
+                gamma2 = self.second.typeinfer(def_list,gamma1,logq,q,t,degree)
                 return(error,gamma2)
             except Exception as e:
                 raise e #TypecheckError(e.message, e.error_code)
-
+        else:  
+            try:
+                error,gamma2 = self.second.typeinfer(def_list,gamma1,logq,q,t,degree)
+                return(error,gamma2)
+            except MSInferError as e:
+                raise e #TypecheckError(e.message, e.error_code)
+            
     def typecheck(self, gamma):
         status = False
         try:
@@ -243,14 +235,8 @@ class CompoundStatement(Statement):
                         return True
             except Exception as e:
                 raise e
-
-    def typecheck_relaxed(self, gamma):
-        if self.first.typecheck_relaxed(gamma):
-            if self.second.typecheck_relaxed(gamma):
-                return True
-        else:
-            return False
-
+            
+    
     def ms_infer(self, gamma_rel, gamma, om):
         c1hat = self.first
         c2hat = self.second
@@ -280,12 +266,13 @@ class CompoundStatement(Statement):
                 return om1
             else:
                 return om2
-        
+
 class IfStatement(Statement):
-    def __init__(self, condition, true_stmt, false_stmt):
+    def __init__(self, condition, true_stmt, false_stmt, id):
         self.condition = condition
         self.true_stmt = true_stmt
         self.false_stmt = false_stmt
+        self.id = id
 
     def __repr__(self):
         return 'IfStatement(%s, %s, %s)' % (self.condition, self.true_stmt, self.false_stmt)
@@ -301,18 +288,18 @@ class IfStatement(Statement):
             if self.false_stmt:
                 self.false_stmt.eval(env)
                 
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d ):
         try:
             t = self.condition.typecheck(gamma)
         except Exception as e2:
             raise e2
         if t == 'bool':
             try:
-                err,gamma1 = self.true_stmt.typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+                err,gamma1 = self.true_stmt.typeinfer(def_list,gamma, logq, coeff_mod,plain_mod,d )
                 if err != "":
-                    _ ,gamma2 = self.false_stmt.typeinfer(gamma, logq, coeff_mod ,plain_mod,d)
+                    _ ,gamma2 = self.false_stmt.typeinfer(def_list,gamma, logq, coeff_mod ,plain_mod,d )
                 else:
-                    err,gamma2 = self.false_stmt.typeinfer(gamma, logq, coeff_mod ,plain_mod,d)
+                    err,gamma2 = self.false_stmt.typeinfer(def_list,gamma, logq, coeff_mod ,plain_mod,d )
                 common_keys = set()
                 for i in gamma1.keys():
                     if i in gamma2.keys():
@@ -350,15 +337,6 @@ class IfStatement(Statement):
         else:
             raise TypecheckError('Conditional expression %s has non-boolean type.\n' % self.condition, 1351)
 
-    def typecheck_relaxed(self, gamma):
-        t = self.condition.typecheck_relaxed(gamma)
-        if t == 'bool':
-            if self.true_stmt.typecheck_relaxed(gamma) and self.false_stmt.typecheck_relaxed(gamma):
-                return True
-            else:
-                return False
-        else:
-            return False
         
     def ms_infer(self, gamma_rel, gamma, insert):
         return self, False, gamma
@@ -367,27 +345,30 @@ class IfStatement(Statement):
         return self
 
 class WhileStatement(Statement):
-    def __init__(self, condition, body):
+    def __init__(self, condition, body, id):
         self.condition = condition
         self.body = body
+        self.id = id
  
     def __repr__(self):
         return 'WhileStatement(%s, %s)' % (self.condition, self.body)
 
-    def typeinfer(self,gamma, logq, q,t,d):
+    def typeinfer(self, def_list, gamma, logq, q,t,d ):
         i = 1
         err = ""
-        if not isinstance(self.condition, IntAexp):
+        if not isinstance(self.condition, FloatAexp):
             # raise Error
             raise TypecheckError("While loop may not terminate", 20)
-        while i <= n.v:
+        while i <= self.condition.v:
             try:
                 #print(gamma)
-                error,gamma = self.body.typeinfer(gamma, logq, q,t,d)
+                error,gamma = self.body.typeinfer(def_list,gamma, logq, q,t,d )
                 #print("\n After type infer", gamma)
-            except Exception as e:
+            except TypecheckError as e:
                 #print("Depth is:",i)
-                raise TypecheckError(e.message, e.error_code)
+                raise TypecheckError("Typecheck Failed at depth", i)
+            except MSInferError as e:
+                raise TypecheckError("Typecheck Failed at depth", i)
             if error:
                 err = error
             i += 1
@@ -398,21 +379,28 @@ class WhileStatement(Statement):
     
     def eval(self, env):
         # condition is either a value or a variable
-        n = self.condition.eval(env)
-        if n.v >= 0:
-            self.body.eval(env)
-            # decrement loop
-            n.v = n.v-1
-            newc = self.condition
-            # update env if necessary
-            if isinstance(n, IntAexp):
-                newc = Value(n.v, 0)
-            else:
-                env[self.condition.name] = Value(n.v, 0)
-                
-            # call while again
-            newwhile = WhileStatement(newc, self.body)
-            newwhile.eval(env)
+            n = 0
+            if isinstance(self.condition, FloatAexp):
+                n = self.condition
+            elif isinstance(env[self.condition.name], Value):
+                n = env[self.condition.name]
+            elif isinstance(env[self.condition.name], FloatAexp):
+                n = env[self.condition.name]
+                n.v = -1
+            if n.v >= 0:
+                self.body.eval(env)
+                # decrement loop
+                n.v -= 1
+                newc = self.condition
+                # update env if necessary
+                if isinstance(n, FloatAexp):
+                    newc = FloatAexp(n.v)
+                else:
+                    env[self.condition.name] = FloatAexp(n.v)
+                # call while again
+                newwhile = WhileStatement(newc, self.body, 0)
+                newwhile.eval(env)
+
         # while i <= self.condition:
         #     self.body.eval(env)
         #     i += 1
@@ -427,14 +415,6 @@ class WhileStatement(Statement):
                 raise e2
             i += 1
 
-    def typecheck_relaxed(self, gamma):
-        i = 1
-        while i <= self.condition:
-            try:
-                 self.body.typecheck(gamma)
-            except Exception as e2:
-                raise e2
-            i += 1
         
     def ms_infer(self, gamma_rel, gamma, insert):
         i = 1
@@ -446,7 +426,6 @@ class WhileStatement(Statement):
             i += 1
         
     
- 
 
 class IlaType(Type):
     def __init__(self, t):
@@ -456,10 +435,15 @@ class IlaType(Type):
 
     
 class IlaFloat(IlaType):
-    def __init__(self):
+    def __init__(self, val):
         self.ty = 'float'
+        self.v = val
     def __repr__(self):
         return '%s' % self.ty
+    
+    def eval(self, env):
+        # Return value
+        return self.v
     
     
 class IlaInteger(IlaType):
@@ -599,13 +583,13 @@ class PlainValue(Value):
             val = self.bfv.eval(env)
         return Value(val.v, val.tag)
 
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d ):
         if (self.scheme_ty == 1):
-            return self.bgv.typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            return self.bgv.typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
         elif (self.scheme_ty == 2):
-            return self.bfv.typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            return self.bfv.typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
         elif (self.scheme_ty == 3):
-            return self.tfhe.typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            return self.tfhe.typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
 
     def typecheck(self, gamma):
         if (self.scheme_ty == 1):
@@ -615,13 +599,6 @@ class PlainValue(Value):
         elif (self.scheme_ty == 3):
             return self.tfhe.typecheck(gamma)
 
-    def typecheck_relaxed(self, gamma):
-        if (self.scheme_ty == 1):
-            return self.bgv.typecheck_relaxed(gamma)
-        elif (self.scheme_ty == 2):
-            return self.bfv.typecheck_relaxed(gamma)
-        elif (self.scheme_ty == 3):
-            return self.tfhe.typecheck_relaxed(gamma)
     
 class VecValue(Value):
     def __init__(self, i, size=None, backend = None, tag = None, length = 0):
@@ -644,7 +621,7 @@ class VecValue(Value):
         elif self.tag == 6:
             return 'vec;%s;%d;%d;%s' % ('plain' , self.size[0],self.size[1] ,json.dumps(self.type_list))
     
-    def typeinfer(self,gamma, logq, q,t,d):
+    def typeinfer(self, def_list, gamma, logq, q,t,d ):
         if self.tag == 3:
             return("vec", "cipher", len(self.type_list), self.type_list)
         elif self.tag == 4:
@@ -709,13 +686,13 @@ class CipherValue(Value):
             val = self.bfv.eval(env)
         return Value(val.v, val.tag)
     
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod, plain_mod, d):
         if (self.scheme_ty == 1):
-            return self.bgv.typeinfer(gamma, logq, coeff_mod, plain_mod, d)
+            return self.bgv.typeinfer(def_list, gamma, logq, coeff_mod, plain_mod, d)
         elif (self.scheme_ty == 2):
-            return self.bfv.typeinfer(gamma, logq, coeff_mod, plain_mod, d)
+            return self.bfv.typeinfer(def_list, gamma, logq, coeff_mod, plain_mod, d)
         elif (self.scheme_ty == 3):
-            return self.tfhe.typeinfer(gamma, logq, coeff_mod, plain_mod, d)
+            return self.tfhe.typeinfer(def_list, gamma, logq, coeff_mod, plain_mod, d)
     
     def typecheck(self, gamma):
         if (self.scheme_ty == 1):
@@ -751,32 +728,25 @@ class IntAexp(Aexp):
     def typecheck(self, gamma):
         return '%s' % ILAInteger()
 
-    def typecheck(self, gamma):
-        return '%s' % ILAInteger()
-
     def typecheck_relaxed(self, gamma):
         return self.typecheck(gamma)
     
 class FloatAexp(Aexp):
     def __init__(self, f):
-        self.f = f
+        self.v = float(f)
 
     def __repr__(self):
-        return 'FloatAexp(%d)' % self.f
-
+        return 'FloatAexp(%d)' % self.v
 
     def compile(self):
         pass
     
     def eval(self, env):
         # must return a value
-        return Value(self.f, 0)
+        return Value(self.v, 0)
     
     """ def typecheck(self, gamma):
         return '%s' % ILAFloat() """
-
-    def typecheck(self, gamma):
-        return '%s' % ILAFloat()
 
     def typecheck_relaxed(self, gamma):
         return self.typecheck(gamma)
@@ -784,9 +754,10 @@ class FloatAexp(Aexp):
 class VarAexp(Aexp):
     def __init__(self, name):
         self.name = name
+        self.v = -1
 
     def __repr__(self):
-        return '%s' % self.name
+        return '%s %s' % self.name, self.v
 
 
     def compile(self):
@@ -804,13 +775,12 @@ class VarAexp(Aexp):
     def typecheck(self, gamma):
         return gamma[self.name]
 
-    def typecheck_relaxed(self, gamma):
-        return self.typecheck(gamma)
     
 # class Variable Polynomial Expressions
 class VarPexp(Pexp):
-    def __init__(self, name):
+    def __init__(self, name, backend):
         self.name = name
+        self.level = backend.get_modulus_chain_highest_level()
 
     def __repr__(self):
         return '%s' % self.name
@@ -825,7 +795,7 @@ class VarPexp(Pexp):
         else:
             return 0
         
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
         ty_name = gamma[self.name].split(" ")[0]
         if ty_name == "plain":
             return ("plain", (get_plain_type_attributes(gamma[self.name])))
@@ -852,24 +822,24 @@ class VarVexp(Vexp):
         else:
             return 0
         
-    def typeinfer(self, gamma, logq, q,t,d):
+    def typeinfer(self, def_list, gamma, logq, q,t,d ):
         return get_vec_type(gamma[self.name])
 
     def typecheck(self, gamma):
         return gamma[self.name]
     
-    def typecheck_relaxed(self, gamma):
-        return self.typecheck(gamma)
     
 
 class UnaryopPexp(Pexp):
-    def __init__(self, op, exp, backend, scheme_ty):
+    def __init__(self, op, exp, backend, scheme_ty,id):
         self.bgv = None
         self.bfv = None
         self.tfhe = None
+        self.id = id
+        self.level = backend.get_modulus_chain_highest_level() - 1
         self.scheme_ty =  int(scheme_ty)
         if (self.scheme_ty == 1):
-            self.bgv = BGVUnaryopPexp(op, exp, backend)
+            self.bgv = BGVUnaryopPexp(op, exp, backend, id)
         elif (self.scheme_ty == 2):
             self.bfv = BFVUnaryopPexp(op, exp, backend)
         elif (self.scheme_ty == 3):
@@ -883,6 +853,15 @@ class UnaryopPexp(Pexp):
         elif (self.scheme_ty == 3):
             return self.tfhe.__repr__()
 
+    def typeinfer(self, def_list, gamma, logq, q, t, d):
+        error, gamma_new = None, None
+        if (self.scheme_ty == 1):
+            (error, gamma_new) = self.bgv.typeinfer(def_list,gamma, logq, q, t, d)
+        if (self.scheme_ty == 2):
+            (error, gamma_new) = self.bfv.typeinfer(def_list, gamma, logq, q, t, d)
+        if (self.scheme_ty == 3):
+            (error, gamma_new) = self.tfhe.typeinfer(def_list, gamma, logq, q, t, d)
+        return error, gamma_new
 
     def compile(self):
         pass
@@ -890,9 +869,9 @@ class UnaryopPexp(Pexp):
     def eval(self, env):
         if (self.scheme_ty == 1):
             v, tag = self.bgv.eval(env)
-        elif (self.scheme_ty == 2):
-            v, tag = self.bfv.eval(env)
-            return Value(v, tag)
+        else:
+            raise Exception("Mod switch is not supported for BFV or TFHE")
+        return Value(v, tag)
         
     def typecheck(self, gamma):
         if (self.scheme_ty == 1):
@@ -900,11 +879,6 @@ class UnaryopPexp(Pexp):
         elif (self.scheme_ty == 2):
             self.bfv.typecheck(gamma)
         
-    def typecheck_relaxed(self, gamma):
-        if (self.scheme_ty == 1):
-            self.bgv.typecheck_relaxed(gamma)
-        elif (self.scheme_ty == 2):
-            self.bfv.typecheck_relaxed(gamma)
              
     def ms_infer(self, gamma_rel, gamma, insert):
         if (self.scheme_ty == 1):
@@ -925,6 +899,7 @@ class BinopPexp(Pexp):
         self.left = left
         self.right = right
         self.backend = backend
+        self.level = backend.get_modulus_chain_highest_level()
         self.t1 = None
         self.t2 = None
         self.bgv = None
@@ -932,7 +907,7 @@ class BinopPexp(Pexp):
         self.tfhe = None
         self.scheme_ty =  int(scheme_ty)
         if (self.scheme_ty == 1):
-            self.bgv = BGVBinopPexp(op, left, right, backend)
+            self.bgv = BGVBinopPexp(op, left, right, backend, id)
         elif (self.scheme_ty == 2):
             self.bfv = BFVBinopPexp(op, left, right, backend)
         elif (self.scheme_ty == 3):
@@ -946,13 +921,13 @@ class BinopPexp(Pexp):
         elif (self.scheme_ty == 3):
             return self.tfhe.__repr__()
     
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d ):
         if (self.scheme_ty == 1):
-            return self.bgv.typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            return self.bgv.typeinfer(def_list,gamma, logq, coeff_mod,plain_mod,d)
         elif (self.scheme_ty == 2):
-            return self.bfv.typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            return self.bfv.typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
         elif (self.scheme_ty == 3):
-            return self.tfhe.typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            return self.tfhe.typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
 
     def compile(self):
         sleft = "&" + self.left.compile()
@@ -981,13 +956,6 @@ class BinopPexp(Pexp):
             return self.bgv.typecheck(self.gamma)
         elif (self.scheme_ty == 2):
             return self.bfv.typecheck(self.gamma)
-           
-
-    def typecheck_relaxed(self, gamma):
-        if (self.scheme_ty == 1):
-            return self.bgv.typecheck_relaxed(gamma)
-        elif (self.scheme_ty == 2):
-            return self.bfv.typecheck_relaxed(gamma)
     
     def ms_infer(self, gamma_rel, gamma, insert):
         if (self.scheme_ty == 1):
@@ -1002,11 +970,12 @@ class BinopPexp(Pexp):
             return self.bfv.levelizer(gamma)
 
 class BinopVexp(Vexp):
-    def __init__(self, op, left, right, backend, scheme_ty):
+    def __init__(self, op, left, right, backend, scheme_ty,id):
         self.op = op
         self.left = left
         self.right = right
         self.backend = backend
+        self.id = id
         self.t1 = None
         self.t2 = None
         self.scheme_ty = scheme_ty
@@ -1014,10 +983,10 @@ class BinopVexp(Vexp):
     def __repr__(self):
         return '(%s %s %s)' % (self.left, self.op, self.right)
     # type_name, sort_exp, lenght, alpha_list
-    def typeinfer(self, gamma, logq, q, plain_mod,degree):
-        if "*" == self.op:
-                ltype, lsort, llenght, lalpha = self.left.typeinfer(gamma, logq, q, plain_mod,degree)
-                _, rsort, rlenght, ralpha = self.left.typeinfer(gamma, logq, q, plain_mod,degree)
+    def typeinfer(self, def_list, gamma, logq, q, plain_mod,degree ):
+        if "vmul" == self.op:
+                ltype, lsort, llenght, lalpha = self.left.typeinfer(def_list,gamma, logq, q, plain_mod,degree )
+                _, rsort, rlenght, ralpha = self.left.typeinfer(def_list,gamma, logq, q, plain_mod,degree )
                 #if llenght != rlenght:
                 #    raise Exception("Operation is not defined on vectors of different legths &")
                 alpha_in_result = []
@@ -1046,8 +1015,8 @@ class BinopVexp(Vexp):
                 #self.tag = 3  
                 return(ltype,"cipher", len(alpha_in_result),alpha_in_result)
         elif "+" == self.op:
-                ltype, lsort, llenght, lalpha = self.left.typeinfer(gamma, logq, q, plain_mod,degree)
-                _, rsort, rlenght, ralpha = self.left.typeinfer(gamma, logq, q, plain_mod,degree)
+                ltype, lsort, llenght, lalpha = self.left.typeinfer(def_list,gamma, logq, q, plain_mod,degree )
+                _, rsort, rlenght, ralpha = self.left.typeinfer(def_list,gamma, logq, q, plain_mod,degree )
                 if llenght != rlenght:
                     raise Exception("Operation is not defined on vectors of different legths &")
                 alpha_in_result = []
@@ -1073,8 +1042,8 @@ class BinopVexp(Vexp):
                 #self.tag = 3  
                 return(ltype,"cipher", len(alpha_in_result),alpha_in_result)
         elif "$" == self.op:
-                ltype, lsort, lsize, lalpha = self.left.typeinfer(gamma, logq, q, plain_mod,degree)
-                _, rsort, rsize, ralpha = self.left.typeinfer(gamma, logq, q, plain_mod,degree)
+                ltype, lsort, lsize, lalpha = self.left.typeinfer(def_list,gamma, logq, q, plain_mod,degree )
+                _, rsort, rsize, ralpha = self.left.typeinfer(def_list,gamma, logq, q, plain_mod,degree )
                 (lrows, lcolmns) = lsize
                 (rrows, rcolmns) = rsize
                 if lcolmns != rrows:
@@ -1089,7 +1058,7 @@ class BinopVexp(Vexp):
                             t[i][j] = lalpha[i][k]
                 return(ltype,"cipher", (lrows,rcolmns), t)
         elif 'idx' == self.op:
-            vtype, sort, length, li = self.left.typeinfer(gamma, logq, q, plain_mod, degree)
+            vtype, sort, length, li = self.left.typeinfer(def_list,gamma, logq, q, plain_mod, degree )
             # FIXME: Super ugly approximation.
             # For inference to work properly, we need dependent types
             # the index should be known at compile time.
@@ -1100,13 +1069,12 @@ class BinopVexp(Vexp):
     def compile(self):
         pass
     
-
     def eval(self, env):
         left_value = self.left.eval(env)
         right_value = self.right.eval(env)
         vec_tag = 3
         size = (0,0)
-        if self.op == '*':
+        if self.op == 'vmul':
             if left_value.tag == 3 and right_value.tag == 3:
                 v = self.backend.vec_mult(left_value.v, right_value.v)
             elif left_value.tag == 4 and right_value.tag == 3:
@@ -1179,7 +1147,9 @@ class BinopAexp(Aexp):
         elif self.op == '-':
             value = left_value.v - right_value.v
         elif self.op == '*':
-            value = left_value.v * right_value.v
+            value = []
+            for i in range(len(left_value.v)):
+                value.append(left_value.v[i] * right_value.v[i])
         elif self.op == '/':
             value = left_value.v / right_value.v
         else:
@@ -1192,9 +1162,6 @@ class BinopAexp(Aexp):
         
         #ToDo: Raise an exception if t1 != t2
         return '%s' % ILAInteger()
-
-    def typecheck_relaxed(self, gamma):
-        return self.typecheck(gamma)
     
     def ms_infer(self, gamma_rel, gamma, insert):
         newexpty = self.typecheck(gamma)

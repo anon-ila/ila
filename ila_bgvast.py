@@ -4,10 +4,12 @@ import sys
 from util import *
 
 class BGVAssignStatement():
-    def __init__(self, name, exp):
+    def __init__(self, name, exp, backend, id):
         # self.name := self.exp
         self.name = name
         self.exp = exp
+        self.backend = backend
+        self.id = id
         
     def __repr__(self):
         return '%s := %s' % (self.name, self.exp)
@@ -33,37 +35,39 @@ class BGVAssignStatement():
         # this can be fixed with mod switching 
         (inf_name, sup_name, eps_name) = type_1
         (inf_exp, sup_exp, eps_exp) = type_2
-        if eps_name > eps_exp:
+        if eps_name < eps_exp:
             return 0
         if inf_name == 'NaN' and sup_name == 'NaN':
-            return (eps_name < eps_exp)
+            return (eps_name >= eps_exp)
         if sup_exp == 'NaN' and inf_exp == 'NaN':
-            return (eps_name < eps_exp)
+            return (eps_name >= eps_exp)
         elif inf_name == 'NaN':
             if sup_exp != 'Nan':
-                return (sup_exp > sup_name) and (eps_name < eps_exp)
+                return (sup_exp <= sup_name) and (eps_name >= eps_exp)
             else:
-                return (eps_name < eps_exp)
+                return (eps_name >= eps_exp)
         elif sup_name == 'NaN':
             if sup_exp != 'NaN':
-                return (inf_exp < inf_name) and (eps_name < eps_exp)
+                return (inf_exp <= inf_name) and (eps_name >= eps_exp)
             else:
-                return (eps_name < eps_exp)
+                return (eps_name >= eps_exp)
         elif sup_exp == 'NaN':
-            return (inf_exp < inf_name) and (eps_name < eps_exp)
+            return (inf_exp >= inf_name) and (eps_name >= eps_exp)
         elif inf_exp == 'NaN':
-            return (sup_exp > sup_name) and (eps_name < eps_exp)
+            return (sup_exp >= sup_name) and (eps_name <= eps_exp)
         if inf_exp != 'NaN' and sup_exp != 'NaN':
-                if inf_name < inf_exp or sup_name > sup_exp:
+                if inf_name <= inf_exp or sup_name >= sup_exp:
                     return 0
         return 1
                 
                 
-    def typeinfer(self, gamma, logq, q,t,d):
+    def typeinfer(self, def_list, gamma, logq, q,t,d):
         error = ""
         # Matrix type
-        if 'matrix' in gamma[self.name]:
-            type_exp, sort_exp, size_exp, alpha_list = self.exp.typeinfer(gamma, logq, q,t,d)
+        if 'int' in gamma[self.name]:
+            return("", gamma)
+        elif 'matrix' in gamma[self.name]:
+            type_exp, sort_exp, size_exp, alpha_list = self.exp.typeinfer(def_list,gamma, logq, q,t,d)
             type_name, sort_name, size_name, type_list = get_vec_type(gamma[self.name])
             rows = size_name[0]
             colmns = size_name[1]
@@ -125,7 +129,7 @@ class BGVAssignStatement():
 
         # LHS is a vector
         elif 'vec' in gamma[self.name]:
-            type_exp, sort_exp, length_exp, alpha_list = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_exp, sort_exp, length_exp, alpha_list = self.exp.typeinfer(def_list,gamma, logq, q,t,d)
             type_name, sort_name, length_name, type_list = get_vec_type(gamma[self.name])
             if sort_exp != sort_name and alpha_list != []:
                 raise TypecheckError("cannot assign %s vec to a %s vec in %s\n" % (sort_exp, sort_name, self), 2)
@@ -166,35 +170,44 @@ class BGVAssignStatement():
 
         # LHS is a cipher type
         elif 'cipher' in gamma[self.name]:
-            type_name, (inf_exp, sup_exp, eps_exp, om_exp) = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_name, (inf_exp, sup_exp, eps_exp, om_exp) = self.exp.typeinfer(def_list,gamma, logq, q,t,d)
             if type_name != "cipher":
                 raise TypecheckError('Exp type is' + type_name + '; expected cipher: %s\n' %  self, 11)
             (inf_name, sup_name, eps_name, om_name) = get_cipher_type_attributes(gamma[self.name])
             if (inf_exp == 'NaN') and (sup_exp == 'NaN'):
                 self.exp.inf = inf_exp = inf_name
                 self.exp.sup = sup_exp = sup_name
-            if self.is_sub_type((inf_name, sup_name, eps_name), (inf_exp, sup_exp, eps_exp)):
-                if om_name != om_exp:
-                    if om_name > om_exp:
-                        raise TypecheckError('Level mismatch in the assignment: %s\n' % self, 13)
-                    else:
-                        raise TypecheckError('Level mismatch in the assignment: %s\n' % self, 11)
-            else:
-                raise TypecheckError(self.name + ' is not a subtype in the assignment: %s\n' % self, 11)
+            #if self.is_sub_type((inf_name, sup_name, eps_name), (inf_exp, sup_exp, eps_exp)):
+            # if om_name != om_exp:
+            #     if om_name > om_exp:
+            #         raise TypecheckError('Level mismatch in the assignment: %s\n' % self, 13)
+            #     else:
+            #         raise TypecheckError('Level mismatch in the assignment: %s\n' % self, 11)
+            #else:
+            #    raise TypecheckError('%s is not a subtype in the assignment: \n' % self.name, 11)
             gamma[self.name] = "cipher <" + str(inf_exp)+ ", " + str(sup_exp)+ ", " + str(eps_exp)+ ", " + str(om_exp)+ ">"
             #print("Noise budget at %s is %d\n" % (self , log2(q/2 - eps_exp)))
-            #if eps_exp > q/2:
-            #    raise TypecheckError(' Noise over flow: %s\n' % self, 11)
+            qlist = self.backend.get_modulus_chain()
+            if qlist != None:
+                q_old = 1
+                for i in range (0, om_exp-1):
+                    q_old = q_old * qlist[i]
+            else:
+                q_old = q
+            if eps_exp > q_old/2:
+                #raise TypecheckError(' Noise over flow: %s\n' % self, 11)
+                print("Noise overflow at", self, eps_exp, q_old/2)
+                raise MSInferError(self, 13, self.backend)
             if (inf_exp != 'NaN' and inf_exp <= -t/2) or (sup_exp != 'NaN' and sup_exp > t/2):
                 error = "Plain text over flow"
             return (error, gamma)
 
         # LHS is a plain type
         elif 'plain' in gamma[self.name]:
-            type_name, exp_type = self.exp.typeinfer(gamma, logq, q, t,d)
+            type_name, exp_type = self.exp.typeinfer(def_list,gamma, logq, q, t,d)
             if type_name != "plain":
                 raise TypecheckError('Exp type is' + type_name + '; expected plain: %s\n' %  self, 11)
-            (inf_name, sup_name, eps_name, level_name) = get_plain_type_attributes(gamma[self.name])
+            (inf_name, sup_name, eps_name, eps_level) = get_plain_type_attributes(gamma[self.name])
             (inf_exp, sup_exp, eps_exp, level_exp) = exp_type
             if (inf_exp == 'NaN') and (sup_exp == 'NaN'):
                 self.exp.inf = inf_exp = inf_name
@@ -202,6 +215,10 @@ class BGVAssignStatement():
             if not self.is_sub_type((inf_name, sup_name, eps_name), (inf_exp, sup_exp, eps_exp)):
                 TypecheckError(self.name + ' is not a subtype in the assignment: %s\n' % self, 11)
             gamma[self.name] = "plain <" + str(inf_exp)+ ", " + str(sup_exp)+ ", " + str(eps_exp)+ ">"
+            if eps_exp > q/2:
+                #raise TypecheckError(' Noise over flow: %s\n' % self, 11)
+                print("Noise overflow at", self, eps_exp, q_old/2)
+                raise MSInferError(self, 13, self.backend)
             #if eps_exp > q/2:
             #    raise TypecheckError(' Noise over flow: %s\n' % self, 11)
             if (inf_exp != 'NaN' and inf_exp <= -t/2) or (sup_exp != 'NaN' and sup_exp > t/2):
@@ -306,7 +323,7 @@ class BGVPlainValue():
         # Return value
         return self
 
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
         return ('plain', ('NaN', 'NaN', self.eps, -1))
 
     def typecheck(self, gamma):
@@ -334,7 +351,7 @@ class BGVCipherValue():
         _, t, d = backend.get_params(self.om)
         tmp = d  * ( (1/12) + ((3.2 * 3.2) * ((4 * d/3) + 1)) )
         tmp_sqrt = math.sqrt(tmp)
-        self.eps = 6 * t * tmp_sqrt
+        self.eps = 6 * t * tmp_sqrt # 6 for openfhe, 18 for seal
             
     def typecheck_relaxed(self, gamma):
         return self.typecheck(gamma)
@@ -351,7 +368,7 @@ class BGVCipherValue():
         # Return value
         return self
     
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
         return ('cipher', ('NaN', 'NaN', self.eps, self.om))
     
     def typecheck(self, gamma):
@@ -366,21 +383,39 @@ class BGVCipherValue():
 
 
 class BGVUnaryopPexp():
-    def __init__(self, op, exp, backend):
+    def __init__(self, op, exp, backend, id):
         self.op = op
         self.exp = exp
         self.backend = backend
+        self.id = id
         
     def __repr__(self):
         return '%s(%s)' % (self.op, self.exp)
 
-
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
+        if self.op == 'ms':
+            tyname, (inf, sup, noise, level) = (self.exp).typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
+            if tyname != "cipher":
+                raise Exception("Only Ciphertext can be mod switched")
+            q = self.backend.get_modulus_chain()
+            print(q, level)
+            q_old = 1
+            for i in range (0,level):
+                q_old = q_old * q[i]
+            q_new = 1
+            for i in range (0,level-1):
+                q_new = q_new * q[i]
+            noise = (q_new * noise/q_old) + (6 * plain_mod * math.sqrt(d  * ( (1/12) + ((3.2 * 3.2) * ((4 * d/3) + 1)) ) ))
+            # source https://eprint.iacr.org/2023/783.pdf page 27
+            return("cipher", (inf, sup, noise , level-1))
+        else:
+            raise  Exception("Only MS is supported currently")
     def compile(self):
         pass
     
     def eval(self, env):
         val = self.exp.eval(env)
-        return self.backend.modswitch(val.v), 1
+        return (val.v), 1
 
     def typecheck(self, gamma):
         L = self.backend.get_modulus_chain_highest_level()
@@ -461,23 +496,23 @@ class BGVUnaryopPexp():
 
 
 class BGVBinopPexp():
-    def __init__(self, op, left, right, backend):
+    def __init__(self, op, left, right, backend, id):
         self.op = op
         self.left = left
         self.right = right
         self.backend = backend
+        self.id = id
         self.t1 = None
         self.t2 = None
 
     def __repr__(self):
         return '(%s %s %s)' % (self.left, self.op, self.right)
     
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
         if "&" == self.op:
             inf = sup = level = noise = None
-            
-            ltyname, (linf,lsup,lnoise,llevel) = (self.left).typeinfer(gamma, logq, coeff_mod,plain_mod,d)
-            rtyname, (rinf,rsup,rnoise,rlevel) = (self.right).typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
+            rtyname, (rinf,rsup,rnoise, rlevel) = (self.right).typeinfer(def_list, gamma, logq, coeff_mod,plain_mod,d)
             if ltyname == rtyname == "plain":
                 raise Exception("Plain multiplication is not supported currently")
             if (llevel != -1) and (rlevel != -1) and (llevel != rlevel) :
@@ -494,7 +529,8 @@ class BGVBinopPexp():
                 level = max(llevel, rlevel)
             else:
                 level = llevel
-                noise = (lnoise*rnoise) #+ (plain_mod * d * (2 ** 90) * 3.2 * math.sqrt ( logq/30 + 3))
+                loq, _, degree = self.backend.get_params(level)
+                noise = (lnoise*rnoise) # + (plain_mod * degree * 18 * (3.2 ** 90) * 3.2 * math.sqrt( loq/30 + 3))
             # relin noise = (lnoise * rnoise) + (t * d * w * \sigma * \sqrt(3) * \sqrt(ell+1))
             # ell = log q/loq w ; in seal log w is undefined.
             # assuming log w = 90   
@@ -502,8 +538,8 @@ class BGVBinopPexp():
             return("cipher", (inf,sup, noise , level))
             #return("cipher", (inf,sup, (lnoise*rnoise), level))
         if "@" == self.op:
-            ltyname, (linf,lsup,lnoise,llevel) = (self.left).typeinfer(gamma, logq, coeff_mod,plain_mod,d)
-            rtyname, (rinf,rsup,rnoise,rlevel) = (self.right).typeinfer(gamma, logq, coeff_mod,plain_mod,d)
+            ltyname, (linf,lsup,lnoise,llevel) = (self.left).typeinfer(def_list,gamma, logq, coeff_mod,plain_mod,d)
+            rtyname, (rinf,rsup,rnoise,rlevel) = (self.right).typeinfer(def_list,gamma, logq, coeff_mod,plain_mod,d)
             if ltyname == rtyname == "plain":
                 raise Exception("Plain addition is not supported currently")
             if llevel != -1 and rlevel != -1 and llevel != rlevel :

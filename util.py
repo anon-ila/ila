@@ -1,5 +1,6 @@
 import json
-import numpy as np
+#import numpy as np
+import decimal as dp
 
 class TypecheckError(Exception):
     def __init__(self, message, error_code):            
@@ -8,7 +9,13 @@ class TypecheckError(Exception):
         self.message = message
         # Now for your custom code...
         self.error_code = error_code
-        
+
+class MSInferError(Exception):
+    def __init__(self, stmt, error_code, backend):            
+        self.stmt = stmt
+        self.error_code = error_code
+        self.backend = backend
+  
 
 def is_cipher_type(ty):
     if "cipher" in ty:
@@ -40,7 +47,7 @@ def get_plain_type_attributes(t, scheme=None):
         inf = float(inf)
     if sup != 'NaN':
         sup = float(sup)
-    return inf, sup, np.longdouble(noise)
+    return inf, sup, dp.Decimal(noise), -1
 
 def is_subtype(t1, t2):
    if "cipher" in t1 and "cipher" in t2:
@@ -105,5 +112,5 @@ def get_cipher_type_attributes(t):
     if sup != 'NaN':
         sup = float(sup)
     #if len(split_list) == 5:
-    return inf, sup, np.longdouble(eps), int(split_list[4][:-1])
+    return inf, sup, dp.Decimal(eps), int(split_list[4][:-1])
     #return inf, sup, np.longdouble(eps)

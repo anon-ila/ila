@@ -58,10 +58,10 @@ class TFHEAssignStatement():
         return 1
                 
                 
-    def typeinfer(self, gamma, logq, q,t,d):
+    def typeinfer(self, def_list, gamma, logq, q,t,d):
         error = ""
         if 'matrix' in gamma[self.name]:
-            type_exp, sort_exp, size_exp, alpha_list = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_exp, sort_exp, size_exp, alpha_list = self.exp.typeinfer(def_list,gamma, logq, q,t,d)
             type_name, sort_name, size_name, type_list = get_vec_type(gamma[self.name])
             rows = size_name[0]
             colmns = size_name[1]
@@ -121,7 +121,7 @@ class TFHEAssignStatement():
             return("", gamma)
 
         elif 'vec' in gamma[self.name]:
-            type_exp, sort_exp, length_exp, alpha_list = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_exp, sort_exp, length_exp, alpha_list = self.exp.typeinfer(def_list,gamma, logq, q,t,d)
             type_name, sort_name, length_name, type_list = get_vec_type(gamma[self.name])
             if sort_exp != sort_name and alpha_list != []:
                 raise TypecheckError("cannot assign %s vec to a %s vec in %s\n" % (sort_exp, sort_name, self), 127)
@@ -158,7 +158,7 @@ class TFHEAssignStatement():
                 return("", gamma)
         
         elif 'cipher' in gamma[self.name]:
-            type_name, (inf_exp, sup_exp, eps_exp, level_exp) = self.exp.typeinfer(gamma, logq, q,t,d)
+            type_name, (inf_exp, sup_exp, eps_exp, level_exp) = self.exp.typeinfer(def_list, gamma, logq, q,t,d)
             if type_name != "cipher":
                 raise TypecheckError('Exp type is' + type_name + '; expected cipher: %s\n' %  self, 163)
             (inf_name, sup_name, eps_name, _) = get_cipher_type_attributes(gamma[self.name])
@@ -178,7 +178,7 @@ class TFHEAssignStatement():
             # print("Noise budget at test %s is %d\n" % (self , math.log2(1/2 - eps_exp)))
             return (error, gamma)
         elif 'plain' in gamma[self.name]:
-            type_name, exp_type = self.exp.typeinfer(gamma, logq, q, t,d)
+            type_name, exp_type = self.exp.typeinfer(def_list,gamma, logq, q, t,d)
             if type_name != "plain":
                 raise TypecheckError('Exp type is' + type_name + '; expected plain: %s\n' %  self, 180)
             (inf_name, sup_name, eps_name) = get_plain_type_attributes(gamma[self.name], scheme=1)
@@ -244,7 +244,7 @@ class TFHEPlainValue():
         # Return value
         return self
 
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
         return ('plain', ('NaN', 'NaN', self.eps))
 
     def typecheck(self, gamma):
@@ -287,7 +287,7 @@ class TFHECipherValue():
         # Return value
         return self
     
-    def typeinfer(self, gamma, logq, coeff_mod,plain_mod,d):
+    def typeinfer(self, def_list, gamma, logq, coeff_mod,plain_mod,d):
         return ('cipher', ('NaN', 'NaN', np.longdouble(self.eps), self.level))
     
     def typecheck(self, gamma):
@@ -335,12 +335,12 @@ class TFHEBinopPexp():
     def __repr__(self):
         return '(%s %s %s)' % (self.left, self.op, self.right)
     
-    def typeinfer(self, gamma, logq, q,t ,d):
+    def typeinfer(self, def_list, gamma, logq, q,t ,d):
         if "&" == self.op:
             inf = sup = None
             noise = 0
-            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(gamma, logq, q,t ,d)
-            rtyname, temp_list = (self.right).typeinfer(gamma, logq, q,t,d)
+            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(def_list,gamma, logq, q,t ,d)
+            rtyname, temp_list = (self.right).typeinfer(def_list,gamma, logq, q,t,d)
             (rinf,rsup,rnoise, rlevel ) = temp_list
             if ltyname == rtyname == "plain":
                 raise Exception("Plain multiplication is not supported currently")
@@ -358,8 +358,8 @@ class TFHEBinopPexp():
             return("cipher", (inf,sup, noise, 0))
             #return("cipher", (inf,sup, (lnoise*rnoise), level))
         if "@" == self.op:
-            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(gamma, logq, q,t,d)
-            rtyname, (rinf,rsup,rnoise, rlevel) = (self.right).typeinfer(gamma, logq, q,t,d)
+            ltyname, (linf,lsup,lnoise, llevel) = (self.left).typeinfer(def_list,gamma, logq, q,t,d)
+            rtyname, (rinf,rsup,rnoise, rlevel) = (self.right).typeinfer(def_list,gamma, logq, q,t,d)
             if ltyname == rtyname == "plain":
                 raise Exception("Plain addition is not supported currently")
             inf = sup = 'NaN'

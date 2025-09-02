@@ -1,15 +1,15 @@
-from seal import *
 import numpy as np
 from ila_backend import *
 
 class TFHErs(Backend):
-    def __init__(self, scheme_ty):
+    def __init__(self, scheme_ty, depth):
         self.scheme_ty = scheme_ty
+        self.plain_power = depth
 
     def get_params_default(self):
         # return logq, q, t, d,
         q = pow(2, 64)
-        t = pow(2, 8)
+        t = pow(2, self.plain_power)
         d = pow(2, 14)
         return 64, q, t, d
 
@@ -25,7 +25,7 @@ class TFHErs(Backend):
     def get_params(self, omega):
         # return logq, t, d, 
         q = pow(2, 64)
-        t = pow(2, 8)
+        t = pow(2, self.plain_power)
         d = pow(2, 14)
         return q, t, d
 

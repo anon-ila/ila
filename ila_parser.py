@@ -1,27 +1,3 @@
-# Copyright (c) 2011, Jay Conrod.
-# All rights reserved.
-
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * Neither the name of Jay Conrod nor the
-#       names of its contributors may be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL JAY CONROD BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from ila_lexer import *
 from combinators import *
@@ -44,20 +20,24 @@ id = Tag(ID)
 poly = Tag(POLY)
 
 # Top level parser
-def ila_parse(tokens, bkend, sch_ty):
+def ila_parse(tokens, bkend, sch_ty, depth):
     global backend
     global scheme_ty
+    global def_list 
+    global node_id
+    node_id = 0
+    def_list= {}
     scheme_ty = sch_ty
-    backend = Backend(scheme_ty)
+    backend = Backend(scheme_ty, depth)
     if bkend == 1:
-        backend = Seal(scheme_ty)
+        backend = Seal(scheme_ty, depth)
     elif bkend == 2:
-        backend = OpenFHE(scheme_ty)
+        backend = OpenFHE(scheme_ty, depth)
     elif bkend == 3:
-        backend = TFHErs(scheme_ty)
+        backend = TFHErs(scheme_ty, depth)
         
     ast = parser()(tokens, 0)
-    return ast, backend
+    return ast, backend, def_list
 
 def parser():
     try:
@@ -123,36 +103,31 @@ def ila_plain_sort():
         return parsed
     return keyword('plain') ^ process
 
-""" def ila_float_type():
-    def process(parsed):
-        tyname = parsed
-        return ILAFloat()
-    return keyword('float') ^ process """
-
 def int_or_rational():
     return rational | num
 
+
 def ila_cipher_type():
     def process(parsed):
-         (tyname,  om_parsed) = parsed
-         om = backend.get_modulus_chain_highest_level()
-         #((((((((tyname, _), inf), _), sup), _), eps), om_parsed), _) = parsed
-         if om_parsed:
+        (tyname,  om_parsed) = parsed
+        om = backend.get_modulus_chain_highest_level()
+        #((((((((tyname, _), inf), _), sup), _), eps), om_parsed), _) = parsed
+        if om_parsed:
             ((((_, inf),_),sup),_) = om_parsed
-         else:
+        else:
             inf = sup = 'NaN'
-         return CipherType(tyname, inf, sup, int(0), int(om), scheme_ty)
+        return CipherType(tyname, inf, sup, int(0), int(om), scheme_ty)
     return keyword('cipher') + Opt (keyword('<') + int_or_rational() + keyword(',') +  int_or_rational() + keyword('>'))  ^ process
 
 
 def ila_plain_type():
     def process(parsed):
-         (tyname,  optional) = parsed
-         if optional:
+        (tyname,  optional) = parsed
+        if optional:
             ((((_, inf),_),sup),_) = optional
-         else:
-             inf = sup = 0
-         return PlainType(tyname, inf, sup, int(0), scheme_ty)
+        else:
+            inf = sup = 0
+        return PlainType(tyname, inf, sup, int(0), scheme_ty)
     return keyword('plain') + Opt( keyword('<') + int_or_rational() + keyword(',') +  int_or_rational()  + keyword('>'))  ^ process
 
 
@@ -195,7 +170,17 @@ def stmt():
 def assign_stmt():
     def process(parsed):
         ((name, _), exp) = parsed
-        return AssignStatement(name, exp, scheme_ty)
+        global node_id
+        node = -1
+        if not isinstance(exp, Value):
+            node_id += 1
+            node = node_id
+            def_list[name] = (exp,node)
+            #if name in def_list.keys():
+            #    def_list[name] = def_list[name].append(exp,node)
+            #else:
+            #    def_list[name] = [(exp,node)]
+        return AssignStatement(name, exp, scheme_ty, backend, node)
     return id + keyword(':=') + init_or_pexp_or_vexp() ^ process
     # return id + keyword(':=') + init_or_aexp() ^ process
 
@@ -207,7 +192,9 @@ def if_stmt():
             (_, false_stmt) = false_parsed
         else:
             false_stmt = None
-        return IfStatement(condition, true_stmt, false_stmt)
+        global node_id
+        node_id += 1
+        return IfStatement(condition, true_stmt, false_stmt, node_id)
     return keyword('if') + int_or_rational() + \
            keyword('then') + Lazy(stmt_list) + \
            Opt(keyword('else') + Lazy(stmt_list)) + \
@@ -270,15 +257,20 @@ def ila_mat_init():
     return keyword('minit') + keyword('(')  + Rep(keyword('[') + Rep(int_or_rational()) + keyword(']'))  + keyword(')') ^ process
 
 def var_or_int():
-    return exp_variable() | int_or_rational()
+    return exp_variable() | ila_float()
 
 def exp_variable():
     return  (id  ^ (lambda v: VarAexp(v)))
 
+def ila_float():
+    return Tag(FLOAT) ^ (lambda f: FloatAexp(f))
+
 def while_stmt():
     def process(parsed):
         ((((_, num), _), body), _) = parsed
-        return WhileStatement(num, body)
+        global node_id
+        node_id += 1
+        return WhileStatement(num, body, node_id)
     return keyword('while') + var_or_int() + \
            keyword('do') + \
            Lazy(stmt_list) + \
@@ -296,14 +288,16 @@ def pexp_term():
 def pexp_unary():
     def process(parsed):
       (((_, _), e), _) = parsed
-      return UnaryopPexp('ms', e, backend, scheme_ty)  
+      global node_id
+      node_id += 1
+      return UnaryopPexp ('ms', e, backend, scheme_ty, node_id)
     return keyword('modswitch') + keyword('(') +  Lazy(pexp) + keyword(')') ^ process
 
 def pexp_group():
     return keyword('(') + Lazy(pexp) + keyword(')') ^ process_group
 
 def pexp_variable():
-    return  (id  ^ (lambda v: VarPexp(v)))
+    return  (id  ^ (lambda v: VarPexp(v, backend)))
 
 def vexp():
     return precedence(vexp_term(),
@@ -317,7 +311,9 @@ def vexp_term():
 def vexp_unary():
     def process(parsed):
       (((_, _), e), _) = parsed
-      return UnaryopPexp('ms', e, backend)  
+      global node_id
+      node_id += 1
+      return UnaryopPexp('ms', e, backend, node_id)  
     return keyword('modswitch') + keyword('(') +  Lazy(vexp) + keyword(')') ^ process
 
 def pvar_or_int():
@@ -326,7 +322,9 @@ def pvar_or_int():
 def vexp_index():
     def process(parsed):
       (((((_, _), x), _), e), _) = parsed
-      return BinopVexp('idx', x, e, backend, scheme_ty)  
+      global node_id
+      node_id += 1
+      return BinopVexp('idx', x, e, backend, scheme_ty, node_id) 
 #    return vexp_variable() + keyword('[') +  int_or_rational() + keyword(']') ^ process
     return keyword('index') + keyword('(') + vexp_variable() + keyword(',') +  pvar_or_int() + keyword(')') ^ process
 
@@ -371,7 +369,9 @@ def process_poly_binop(op):
     return lambda l, r: BinopPexp(op, l, r, backend, scheme_ty)
 
 def process_vec_binop(op):
-    return lambda l, r: BinopVexp(op, l, r, backend, scheme_ty)
+    global node_id
+    node_id += 1
+    return lambda l, r: BinopVexp(op, l, r, backend, scheme_ty, node_id)
 
 
 def process_group(parsed):
@@ -388,15 +388,18 @@ pexp_precedence_levels = [
     ['&'],
     ['@'],
 ]
+
+vexp_precedence_levels = [
+    ['vmul'],
+    ['+'],
+    ['$']
+]
+
 aexp_precedence_levels = [
     ['*', '/'],
     ['+', '-'],
 ]
-vexp_precedence_levels = [
-    ['*'],
-    ['+'],
-    ['$']
-]
+
 
 bexp_precedence_levels = [
     ['and'],
