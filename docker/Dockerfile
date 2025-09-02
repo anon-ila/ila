@@ -14,6 +14,10 @@ RUN apt update && \
 # copy into container requirements and install them before rest of code
 RUN pip3 install numpy pybind11
 
+RUN pip3 install scikit-image
+
+# clone repo
+RUN git clone https://github.com/anon-ila/ila.git 
 
 # copy everything into container now that requirements stage is complete
 RUN cd / && git clone https://github.com/Huelse/SEAL-Python.git
@@ -70,8 +74,9 @@ RUN cd / && git clone https://github.com/openfheorg/openfhe-python.git \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 
+
 # Install openfhe as a pip package
-WORKDIR /ila
+RUN cd /ila
 
 ENV PYTHONPATH=/SEAL-Python:/usr:$PYTHONPATH
 

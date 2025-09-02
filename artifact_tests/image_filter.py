@@ -13,7 +13,7 @@ filter = "([9 3 2 2 1 5 6 3 0 7 7 3 1 2 5 6 2 6 5 8] [0 1 1 0 7 9 1 4 2 0 5 0 8 
 
 with open("image_filter.ila", "w") as f:
     f.write ('a : matrix cipher 20 20;\nx : matrix cipher 20 20;\ny : matrix cipher 20 20\n\na := minit '+img+';\nx := minit '+filter+';\ny := (a $ x)')
-    f.close()
+f.close()
 
 
 (typecheck, outputs, logq) = ila(1, 1, "image_filter.ila", 10)
