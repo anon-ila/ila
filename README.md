@@ -120,13 +120,12 @@ python3 ./artifact_tests/fig_15b.py
 
 These scripts generate the full data set for Fig. 15.
 
----
+
 
 ## Figure 16 – Value Overflow Runtime Comparison (ILA vs. TFHE-rs)
 
 This figure involves run time comparisons between ILA type checking and [TFHE-rs](https://github.com/zama-ai/tfhe-rs) run-time.
 
----
 
 ### Step 1: ILA Runtime
 
@@ -135,7 +134,6 @@ cd /ila
 python3 ./artifact_tests/fig_16a.py
 ```
 
----
 
 ### Step 2: TFHE-rs Runtime (Rust)
 
@@ -146,7 +144,6 @@ cargo run
 
 * Outputs runtime for a 2-bit overflow-detecting computation using `FheUint2`.
 
----
 
 ### Step 3: Scaling to Wider Bit-Widths
 
@@ -182,6 +179,7 @@ To benchmark other widths `{4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048}`:
    ```
 
 > The program will **panic on overflow**, printing the elapsed time — this is the runtime measurement used for TFHE-rs.
+> The program run-time increases as i increases. For FheUint2048 run-time might be more than 10 hours.
 
 
 ## Additional Experiments
@@ -233,7 +231,6 @@ python3 artifact_tests/psi_fail.py  # Returns non-zero (mismatch)
 * Correctness of equality check over encrypted data.
 * Non-leakage via randomized masking on inequality.
 
----
 
 ### Private Information Retrieval (PIR)
 
@@ -250,7 +247,7 @@ Implements PIR using encrypted queries over a list-modeled database.
 * The client decrypts the result to retrieve the selected entries.
 
 > This experiment is **HDD-intensive**. Expect >200 GB usage for the full 8000-element test.
-
+> This experiment might take an hour or two.
 
 ### Setup Instructions
 
@@ -266,7 +263,6 @@ Implements PIR using encrypted queries over a list-modeled database.
 
 > These flags disable PSI-specific optimizations and enable PIR logic.
 
----
 
 ### Run:
 
