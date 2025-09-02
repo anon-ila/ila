@@ -1,0 +1,1971 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'tfhe'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "tfhe",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'boolean_key_sizes'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=boolean_key_sizes",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "boolean_key_sizes",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'boolean_key_sizes'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=boolean_key_sizes",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "boolean_key_sizes",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'dark_market'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=dark_market",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "dark_market",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'dark_market'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=dark_market",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "dark_market",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'dist_tuniform'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=dist_tuniform",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "dist_tuniform",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'dist_tuniform'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=dist_tuniform",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "dist_tuniform",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'generates_test_keys'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=generates_test_keys",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "generates_test_keys",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'generates_test_keys'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=generates_test_keys",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "generates_test_keys",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'hlapi_compact_pk_ct_sizes'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=hlapi_compact_pk_ct_sizes",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "hlapi_compact_pk_ct_sizes",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'hlapi_compact_pk_ct_sizes'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=hlapi_compact_pk_ct_sizes",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "hlapi_compact_pk_ct_sizes",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'micro_bench_and'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=micro_bench_and",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "micro_bench_and",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'micro_bench_and'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=micro_bench_and",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "micro_bench_and",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'pbs_count'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=pbs_count",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "pbs_count",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'pbs_count'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=pbs_count",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "pbs_count",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'print_doc_bench_parameters'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=print_doc_bench_parameters",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "print_doc_bench_parameters",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'print_doc_bench_parameters'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=print_doc_bench_parameters",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "print_doc_bench_parameters",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'regex_engine'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=regex_engine",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "regex_engine",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'regex_engine'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=regex_engine",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "regex_engine",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'sha256'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=sha256",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "sha256",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'sha256'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=sha256",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "sha256",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'sha256_bool'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=sha256_bool",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "sha256_bool",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'sha256_bool'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=sha256_bool",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "sha256_bool",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'shortint_key_sizes'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=shortint_key_sizes",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "shortint_key_sizes",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'shortint_key_sizes'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=shortint_key_sizes",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "shortint_key_sizes",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'wasm_benchmarks_parser'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=wasm_benchmarks_parser",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "wasm_benchmarks_parser",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'wasm_benchmarks_parser'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=wasm_benchmarks_parser",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "wasm_benchmarks_parser",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'write_params_to_file'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=write_params_to_file",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "write_params_to_file",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'write_params_to_file'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=write_params_to_file",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "write_params_to_file",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'zk_wasm_x86_test'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=zk_wasm_x86_test",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "zk_wasm_x86_test",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'boolean-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=boolean-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "boolean-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'dev-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=dev-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "dev-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'glwe_packing_compression-integer-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=glwe_packing_compression-integer-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "glwe_packing_compression-integer-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'glwe_packing_compression-shortint-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=glwe_packing_compression-shortint-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "glwe_packing_compression-shortint-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'hlapi'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=hlapi",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "hlapi",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'hlapi-erc20'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=hlapi-erc20",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "hlapi-erc20",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'integer-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=integer-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "integer-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'integer-signed-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=integer-signed-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "integer-signed-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'keygen'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=keygen",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "keygen",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'ks-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=ks-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "ks-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'ks-pbs-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=ks-pbs-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "ks-pbs-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'modulus_switch_noise_reduction'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=modulus_switch_noise_reduction",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "modulus_switch_noise_reduction",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'oprf-shortint-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=oprf-shortint-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "oprf-shortint-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'pbs-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=pbs-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "pbs-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'pbs128-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=pbs128-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "pbs128-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'shortint-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=shortint-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "shortint-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'utilities'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=utilities",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "utilities",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'zk-pke-bench'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=zk-pke-bench",
+                    "--package=tfhe"
+                ],
+                "filter": {
+                    "name": "zk-pke-bench",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'tfhe_csprng'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=tfhe-csprng"
+                ],
+                "filter": {
+                    "name": "tfhe_csprng",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'generate'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=generate",
+                    "--package=tfhe-csprng"
+                ],
+                "filter": {
+                    "name": "generate",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'generate'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=generate",
+                    "--package=tfhe-csprng"
+                ],
+                "filter": {
+                    "name": "generate",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'benchmark'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=benchmark",
+                    "--package=tfhe-csprng"
+                ],
+                "filter": {
+                    "name": "benchmark",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'tfhe_cuda_backend'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=tfhe-cuda-backend"
+                ],
+                "filter": {
+                    "name": "tfhe_cuda_backend",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'tfhe_fft'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=tfhe-fft"
+                ],
+                "filter": {
+                    "name": "tfhe_fft",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'fft'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=fft",
+                    "--package=tfhe-fft"
+                ],
+                "filter": {
+                    "name": "fft",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'tfhe_ntt'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=tfhe-ntt"
+                ],
+                "filter": {
+                    "name": "tfhe_ntt",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'mul_poly_native'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=mul_poly_native",
+                    "--package=tfhe-ntt"
+                ],
+                "filter": {
+                    "name": "mul_poly_native",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'mul_poly_native'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=mul_poly_native",
+                    "--package=tfhe-ntt"
+                ],
+                "filter": {
+                    "name": "mul_poly_native",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'mul_poly_prime'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=mul_poly_prime",
+                    "--package=tfhe-ntt"
+                ],
+                "filter": {
+                    "name": "mul_poly_prime",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'mul_poly_prime'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=mul_poly_prime",
+                    "--package=tfhe-ntt"
+                ],
+                "filter": {
+                    "name": "mul_poly_prime",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'lib'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=lib",
+                    "--package=tfhe-ntt"
+                ],
+                "filter": {
+                    "name": "lib",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'ntt'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=ntt",
+                    "--package=tfhe-ntt"
+                ],
+                "filter": {
+                    "name": "ntt",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'tfhe_versionable'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "tfhe_versionable",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'associated_bounds'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=associated_bounds",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "associated_bounds",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'associated_bounds'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=associated_bounds",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "associated_bounds",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'bounds'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=bounds",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "bounds",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'bounds'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=bounds",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "bounds",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'convert'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=convert",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "convert",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'convert'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=convert",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "convert",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'deprecation'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=deprecation",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "deprecation",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'deprecation'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=deprecation",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "deprecation",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'failed_upgrade'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=failed_upgrade",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "failed_upgrade",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'failed_upgrade'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=failed_upgrade",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "failed_upgrade",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'manual_impl'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=manual_impl",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "manual_impl",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'manual_impl'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=manual_impl",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "manual_impl",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'not_versioned'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=not_versioned",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "not_versioned",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'not_versioned'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=not_versioned",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "not_versioned",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'recursive'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=recursive",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "recursive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'recursive'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=recursive",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "recursive",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'simple'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=simple",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "simple",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'simple'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=simple",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "simple",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'transparent'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=transparent",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "transparent",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'transparent'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=transparent",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "transparent",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'transparent_then_not'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=transparent_then_not",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "transparent_then_not",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'transparent_then_not'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=transparent_then_not",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "transparent_then_not",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'upgrades'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=upgrades",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "upgrades",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'upgrades'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=upgrades",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "upgrades",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'vec'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=vec",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "vec",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'vec'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=vec",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "vec",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'bounds_private_in_public'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=bounds_private_in_public",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "bounds_private_in_public",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'convert_with_bounds'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=convert_with_bounds",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "convert_with_bounds",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'convert_with_generics'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=convert_with_generics",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "convert_with_generics",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'derive_macro'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=derive_macro",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "derive_macro",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'formats'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=formats",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "formats",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'types'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=types",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "types",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'unsized'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=unsized",
+                    "--package=tfhe-versionable"
+                ],
+                "filter": {
+                    "name": "unsized",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'tfhe_zk_pok'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=tfhe-zk-pok"
+                ],
+                "filter": {
+                    "name": "tfhe_zk_pok",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'pke_v1'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=pke_v1",
+                    "--package=tfhe-zk-pok"
+                ],
+                "filter": {
+                    "name": "pke_v1",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'pke_v2'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=pke_v2",
+                    "--package=tfhe-zk-pok"
+                ],
+                "filter": {
+                    "name": "pke_v2",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'utils'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=utils",
+                    "--package=tfhe-zk-pok"
+                ],
+                "filter": {
+                    "name": "utils",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'tasks'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=tasks",
+                    "--package=tasks"
+                ],
+                "filter": {
+                    "name": "tasks",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'tasks'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=tasks",
+                    "--package=tasks"
+                ],
+                "filter": {
+                    "name": "tasks",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'backward_compatibility_tests'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=backward_compatibility_tests",
+                    "--package=tests"
+                ],
+                "filter": {
+                    "name": "backward_compatibility_tests",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'tfhe-example'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=tfhe-example",
+                    "--package=tfhe-example"
+                ],
+                "filter": {
+                    "name": "tfhe-example",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'tfhe-example'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=tfhe-example",
+                    "--package=tfhe-example"
+                ],
+                "filter": {
+                    "name": "tfhe-example",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
