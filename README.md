@@ -193,11 +193,12 @@ This section describes three additional experiments that demonstrate the express
 
 **File:** `artifact_tests/image_filter.py`
 **Description:**
-Applies a basic filter to a region of an encrypted image (`image.png`). The image is partially encrypted, filtered in the encrypted domain, and then decrypted to verify correctness.
+Applies a basic filter to a region of an encrypted image (`image.png`). The image is partially encrypted, filtered in the encrypted domain, and then decrypted to an array. This experiment can take up to an hour to produce output.
 
 #### Run:
 
 ```
+cd /ila
 python3 artifact_tests/image_filter.py
 ```
 
